@@ -1,0 +1,6 @@
+{
+  "name": "NeuroRetrieval Psychoeducational Assistant",
+  "description": "Electrophysiological neuroscience and reality-grounded psychoeducation on EEG biomarkers, N100 corollary discharge, and evidence-based sensory coping.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
