@@ -1,0 +1,33 @@
+[
+  {
+    "name": "query_neuroscience_knowledge_base",
+    "description": "Retrieves authorized clinical and electrophysiological neuroscience literature regarding EEG biomarkers (N100, sensory attenuation, corollary discharge) and schizophrenia psychoeducation.",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "query": {
+          "type": "STRING",
+          "description": "Specific scientific or psychoeducational topic to retrieve (e.g., 'N100 sensory attenuation', 'CBTp grounding exercises', 'symptom clusters')."
+        },
+        "top_k": {
+          "type": "INTEGER",
+          "description": "Number of snippets to retrieve (1 to 5). Defaults to 3."
+        }
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "trigger_crisis_override",
+    "description": "Retrieves immediate emergency crisis helpline contact details when severe emotional distress, self-harm, or suicide risk is detected.",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "region": {
+          "type": "STRING",
+          "description": "User's region (US, UK, Canada, or International). Defaults to 'US'."
+        }
+      }
+    }
+  }
+]

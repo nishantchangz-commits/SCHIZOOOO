@@ -1,0 +1,154 @@
+================================================================================
+NEUROPHENOM CLINICAL GROUNDING DATASET: PATIENT COHORT p01-p10
+Includes 1D-CNN EEG Biomarkers, Gaze Fixations, and 5-Stage Evolutionary Artwork Data
+================================================================================
+
+### PATIENT RECORD: P01
+- Diagnosis: Schizophrenia spectrum (paranoid subtype, ICD-11 6A20) (Age 31)
+- N100 Sensory Attenuation Deficit: -62.4% (Norm: > -20%)
+- P300 Amplitude: 4.1 uV | Latency: 348.0 ms
+- Mismatch Negativity (MMN): -1.2 uV
+- 40Hz ASSR SNR: 8.6 dB
+- 1D CNN Schizophrenia Biomarker Probability: 94.0%
+- Qualitative Clinical Notes: Reports intense somatic sensations where lines appear to vibrate and detach into skeletal frames. Gaze locks strongly at central coordinate (0.55, 0.45).
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 baseline artwork with subtle vertical brush tension
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 heavy contours splitting into geometric ribs
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 interlocking skeletal frame emerging from center canvas
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 three hollow ocular cavities opening inside painted figure
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 peak perceptual emergence of crystalline biomechanical sentinel
+
+### PATIENT RECORD: P02
+- Diagnosis: Schizophrenia spectrum (first-episode psychosis, ICD-11 6A20) (Age 24)
+- N100 Sensory Attenuation Deficit: -58.1% (Norm: > -20%)
+- P300 Amplitude: 5.0 uV | Latency: 335.0 ms
+- Mismatch Negativity (MMN): -1.5 uV
+- 40Hz ASSR SNR: 9.2 dB
+- 1D CNN Schizophrenia Biomarker Probability: 89.0%
+- Qualitative Clinical Notes: Experiences heightened pareidolia in circular patterns. Contours pull inward into swirling chromatic vortexes.
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 calm abstract color field with soft central swirl
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 concentric ripples tightening around gaze fixation lock
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 fracturing geometric planes pulling inward
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 emergent pareidolia eyes and symmetry locking in vortex
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 full high-salience chromatic vortex construct dominating canvas
+
+### PATIENT RECORD: P03
+- Diagnosis: Schizoaffective disorder (depressive type, ICD-11 6A21) (Age 38)
+- N100 Sensory Attenuation Deficit: -51.3% (Norm: > -20%)
+- P300 Amplitude: 5.8 uV | Latency: 329.0 ms
+- Mismatch Negativity (MMN): -1.8 uV
+- 40Hz ASSR SNR: 10.1 dB
+- 1D CNN Schizophrenia Biomarker Probability: 86.0%
+- Qualitative Clinical Notes: Visual reports of looming shadowed silhouettes; pervasive feelings of an external presence monitoring central canvas.
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 baseline charcoal sketch with faint central shadow
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 shadow edges sharpening under prolonged gaze lock
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 branching filament lines radiating from core silhouette
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 dense geometric web connecting upper canvas
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 peak monolithic construct with luminous neural filaments
+
+### PATIENT RECORD: P04
+- Diagnosis: Schizophrenia spectrum (undifferentiated, ICD-11 6A20) (Age 29)
+- N100 Sensory Attenuation Deficit: -65.0% (Norm: > -20%)
+- P300 Amplitude: 3.8 uV | Latency: 352.0 ms
+- Mismatch Negativity (MMN): -1.1 uV
+- 40Hz ASSR SNR: 7.9 dB
+- 1D CNN Schizophrenia Biomarker Probability: 96.0%
+- Qualitative Clinical Notes: Severe sensory gating impairment; auditory speech sensations accompanied by expanding crystalline geometries in visual field.
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 baseline artwork with subtle initial brush tension
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 contours splitting and intensifying around gaze lock
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 structural motif emerging from center canvas
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 complex geometric or pareidolia form taking shape
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 peak perceptual emergence dominating focal area
+
+### PATIENT RECORD: P05
+- Diagnosis: Schizotypal disorder (ICD-11 6A22) (Age 27)
+- N100 Sensory Attenuation Deficit: -41.2% (Norm: > -20%)
+- P300 Amplitude: 6.9 uV | Latency: 320.0 ms
+- Mismatch Negativity (MMN): -2.1 uV
+- 40Hz ASSR SNR: 11.4 dB
+- 1D CNN Schizophrenia Biomarker Probability: 74.0%
+- Qualitative Clinical Notes: Mild thought insertion feelings during prolonged painting sessions; heightened sensitivity to peripheral contrast.
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 baseline artwork with subtle initial brush tension
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 contours splitting and intensifying around gaze lock
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 structural motif emerging from center canvas
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 complex geometric or pareidolia form taking shape
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 peak perceptual emergence dominating focal area
+
+### PATIENT RECORD: P06
+- Diagnosis: Schizophrenia spectrum (chronic refractory, ICD-11 6A20) (Age 44)
+- N100 Sensory Attenuation Deficit: -69.8% (Norm: > -20%)
+- P300 Amplitude: 3.2 uV | Latency: 361.0 ms
+- Mismatch Negativity (MMN): -0.9 uV
+- 40Hz ASSR SNR: 6.8 dB
+- 1D CNN Schizophrenia Biomarker Probability: 98.0%
+- Qualitative Clinical Notes: Marked corollary discharge failure; patient perceives self-guided brushstrokes as guided by external magnetic pull.
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 baseline artwork with subtle initial brush tension
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 contours splitting and intensifying around gaze lock
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 structural motif emerging from center canvas
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 complex geometric or pareidolia form taking shape
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 peak perceptual emergence dominating focal area
+
+### PATIENT RECORD: P07
+- Diagnosis: First-Episode Psychosis (ICD-11 6A20.0) (Age 22)
+- N100 Sensory Attenuation Deficit: -54.6% (Norm: > -20%)
+- P300 Amplitude: 5.4 uV | Latency: 331.0 ms
+- Mismatch Negativity (MMN): -1.6 uV
+- 40Hz ASSR SNR: 9.5 dB
+- 1D CNN Schizophrenia Biomarker Probability: 88.0%
+- Qualitative Clinical Notes: Acute perceptual sharpening; high chromatic salience along central canvas axes with acute sensory overload.
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 baseline artwork with subtle initial brush tension
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 contours splitting and intensifying around gaze lock
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 structural motif emerging from center canvas
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 complex geometric or pareidolia form taking shape
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 peak perceptual emergence dominating focal area
+
+### PATIENT RECORD: P08
+- Diagnosis: Schizophrenia spectrum (ICD-11 6A20) (Age 35)
+- N100 Sensory Attenuation Deficit: -60.5% (Norm: > -20%)
+- P300 Amplitude: 4.5 uV | Latency: 344.0 ms
+- Mismatch Negativity (MMN): -1.3 uV
+- 40Hz ASSR SNR: 8.3 dB
+- 1D CNN Schizophrenia Biomarker Probability: 92.0%
+- Qualitative Clinical Notes: Repetitive rhythmic structuring in artwork; intense concentration focused on 0.50, 0.50 central axis.
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 baseline artwork with subtle initial brush tension
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 contours splitting and intensifying around gaze lock
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 structural motif emerging from center canvas
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 complex geometric or pareidolia form taking shape
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 peak perceptual emergence dominating focal area
+
+### PATIENT RECORD: P09
+- Diagnosis: Schizoaffective disorder (bipolar type, ICD-11 6A21) (Age 33)
+- N100 Sensory Attenuation Deficit: -48.7% (Norm: > -20%)
+- P300 Amplitude: 6.2 uV | Latency: 326.0 ms
+- Mismatch Negativity (MMN): -2.0 uV
+- 40Hz ASSR SNR: 10.8 dB
+- 1D CNN Schizophrenia Biomarker Probability: 81.0%
+- Qualitative Clinical Notes: Fluctuating affective state; episodic bursts of rapid canvas mark-making followed by cognitive fatigue.
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 baseline artwork with subtle initial brush tension
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 contours splitting and intensifying around gaze lock
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 structural motif emerging from center canvas
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 complex geometric or pareidolia form taking shape
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 peak perceptual emergence dominating focal area
+
+### PATIENT RECORD: P10
+- Diagnosis: Schizophrenia spectrum (prodromal / high clinical risk, ICD-11 6A20) (Age 20)
+- N100 Sensory Attenuation Deficit: -45.0% (Norm: > -20%)
+- P300 Amplitude: 6.5 uV | Latency: 322.0 ms
+- Mismatch Negativity (MMN): -2.2 uV
+- 40Hz ASSR SNR: 11.0 dB
+- 1D CNN Schizophrenia Biomarker Probability: 77.0%
+- Qualitative Clinical Notes: Subtle perceptual distortions; early attenuation deficit detectable on N100 ERP prior to syndromal onset.
+- Artwork Perceptual Evolution (Stages 1 through 5):
+  * Stage 1 (EEG Salience: 0.25, Tokens: gzlow/nlow): stage 1 baseline artwork with subtle initial brush tension
+  * Stage 2 (EEG Salience: 0.41, Tokens: gzmed/nlow): stage 2 contours splitting and intensifying around gaze lock
+  * Stage 3 (EEG Salience: 0.57, Tokens: gzmed/nmed): stage 3 structural motif emerging from center canvas
+  * Stage 4 (EEG Salience: 0.73, Tokens: gzhigh/nmed): stage 4 complex geometric or pareidolia form taking shape
+  * Stage 5 (EEG Salience: 0.89, Tokens: gzhigh/nhigh): stage 5 peak perceptual emergence dominating focal area

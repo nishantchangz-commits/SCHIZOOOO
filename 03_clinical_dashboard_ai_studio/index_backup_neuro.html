@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroRetrieval | Schizophrenia Spectrum: EEG 1D CNN Model to Clinical LLM & NotebookLM</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f1f5f9; scroll-behavior: smooth; }
+    .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; }
+    .gradient-text { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .glow-hover:hover { box-shadow: 0 0 25px rgba(56, 189, 248, 0.25); border-color: rgba(56, 189, 248, 0.4); }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- NAVBAR -->
+  <nav class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-3xl">🧠</span>
+        <div>
+          <span class="text-xl font-bold tracking-tight text-white block">NeuroRetrieval</span>
+          <span class="text-xs text-slate-400">Model ➡️ LLM ➡️ NotebookLM</span>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center space-x-6 text-sm text-slate-300 font-medium">
+        <a href="#overview" class="hover:text-sky-400 transition">Overview</a>
+        <a href="#model" class="hover:text-sky-400 transition">1D CNN Model</a>
+        <a href="#statistics" class="hover:text-sky-400 transition">EEG Statistics</a>
+        <a href="#safety" class="hover:text-sky-400 transition">Clinical Safety</a>
+        <a href="#notebooklm" class="hover:text-sky-400 transition">NotebookLM</a>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="http://localhost:8501" target="_blank" class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs md:text-sm transition shadow-lg shadow-sky-600/30 flex items-center space-x-2">
+          <span>💬 Streamlit App</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+        </a>
+        <a href="https://notebooklm.google.com/" target="_blank" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs md:text-sm transition shadow-lg shadow-indigo-600/30 flex items-center space-x-2">
+          <span>📓 NotebookLM</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <header id="overview" class="py-16 md:py-24 px-6 max-w-7xl mx-auto text-center">
+    <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300 text-xs mb-6 shadow-inner">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span>Translational Computational Neuroscience & Healthcare AI</span>
+    </div>
+    <h1 class="text-4xl md:text-6xl font-black tracking-tight mb-6 leading-tight">
+      Schizophrenia Spectrum Analysis:<br>
+      <span class="gradient-text">From 1D CNN Models to Clinical LLMs</span>
+    </h1>
+    <p class="text-base md:text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+      A comprehensive research and deployment system investigating <strong>auditory N100 corollary discharge deficits</strong> and sensory attenuation breakdown in schizophrenia. Features deep learning trial classification, clinical RAG retrieval, strict psychiatric safety guardrails, and Google NotebookLM podcast synthesis.
+    </p>
+
+    <!-- KEY STATS ROW -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+      <div class="glass-card p-5 text-center">
+        <div class="text-3xl md:text-4xl font-extrabold text-sky-400">81</div>
+        <div class="text-xs uppercase tracking-wider text-slate-400 mt-1 font-semibold">Human Subjects</div>
+        <div class="text-xs text-slate-500 mt-0.5">32 Controls · 49 Schizophrenia</div>
+      </div>
+      <div class="glass-card p-5 text-center">
+        <div class="text-3xl md:text-4xl font-extrabold text-indigo-400">23,201</div>
+        <div class="text-xs uppercase tracking-wider text-slate-400 mt-1 font-semibold">Single EEG Trials</div>
+        <div class="text-xs text-slate-500 mt-0.5">High-density auditory ERP</div>
+      </div>
+      <div class="glass-card p-5 text-center">
+        <div class="text-3xl md:text-4xl font-extrabold text-purple-400">84.38%</div>
+        <div class="text-xs uppercase tracking-wider text-slate-400 mt-1 font-semibold">Subject ROC-AUC</div>
+        <div class="text-xs text-slate-500 mt-0.5">PyTorch 1D CNN Classifier</div>
+      </div>
+      <div class="glass-card p-5 text-center">
+        <div class="text-3xl md:text-4xl font-extrabold text-emerald-400">100%</div>
+        <div class="text-xs uppercase tracking-wider text-slate-400 mt-1 font-semibold">Safety Pass Rate</div>
+        <div class="text-xs text-slate-500 mt-0.5">19/19 Crisis & Delusion Tests</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- END-TO-END WORKFLOW DIAGRAM -->
+  <section class="max-w-7xl mx-auto px-6 py-8">
+    <div class="glass-card p-8 border-slate-800">
+      <h3 class="text-xl font-bold mb-6 text-white flex items-center space-x-2">
+        <i class="fa-solid fa-diagram-project text-sky-400"></i>
+        <span>Full-Stack Translational Architecture</span>
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+        <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60">
+          <div class="text-sky-400 text-2xl mb-2"><i class="fa-solid fa-brain"></i></div>
+          <div class="font-bold text-sm text-white">1. EEG Signal Modeling</div>
+          <p class="text-xs text-slate-400 mt-1">23,201 trials across Fz, FCz, Cz. Quantifies N100 corollary discharge failure.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60">
+          <div class="text-indigo-400 text-2xl mb-2"><i class="fa-solid fa-microchip"></i></div>
+          <div class="font-bold text-sm text-white">2. PyTorch 1D CNN</div>
+          <p class="text-xs text-slate-400 mt-1">Temporal convolutions, BatchNorm, Dropout. 92.0% recall, 84.4% subject ROC-AUC.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60">
+          <div class="text-purple-400 text-2xl mb-2"><i class="fa-solid fa-shield-heart"></i></div>
+          <div class="font-bold text-sm text-white">3. RAG & Safety Guardrails</div>
+          <p class="text-xs text-slate-400 mt-1">FastAPI + ChromaDB. Intercepts crisis (988) and reality-grounds persecutory thoughts.</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60">
+          <div class="text-emerald-400 text-2xl mb-2"><i class="fa-solid fa-headphones-simple"></i></div>
+          <div class="font-bold text-sm text-white">4. NotebookLM Podcast</div>
+          <p class="text-xs text-slate-400 mt-1">Curated source pack for generating 2-host conversational AI podcasts in NotebookLM.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: 1D CNN DEEP LEARNING MODEL -->
+  <section id="model" class="max-w-7xl mx-auto px-6 py-12">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-bold flex items-center space-x-3">
+          <span class="text-sky-400"><i class="fa-solid fa-microchip"></i></span>
+          <span>1. PyTorch 1D CNN Deep Learning Classifier</span>
+        </h2>
+        <p class="text-sm text-slate-400 mt-1">Architecture and benchmark classification results on single EEG ERP trials.</p>
+      </div>
+      <span class="px-3 py-1 rounded bg-slate-800 border border-slate-700 text-xs text-sky-400 font-mono">eeg_1d_cnn_model.pt</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <!-- Plot 1 -->
+      <div class="glass-card p-6">
+        <h3 class="text-lg font-semibold mb-3 text-sky-300 flex items-center space-x-2">
+          <i class="fa-solid fa-wave-square"></i>
+          <span>N100 Sensory Attenuation Waveforms</span>
+        </h3>
+        <img src="frontend/assets/n100_sensory_attenuation_waveforms.png" alt="N100 Waveforms" class="rounded-lg w-full border border-slate-700 bg-slate-950" onerror="this.onerror=null; this.src='/static/n100_sensory_attenuation_waveforms.png';">
+        <p class="text-xs text-slate-400 mt-3">
+          Notice the pronounced suppression in healthy controls during self-initiated button presses (red vs blue), contrasted with the lack of attenuation in schizophrenia.
+        </p>
+      </div>
+
+      <!-- Plot 2 -->
+      <div class="glass-card p-6">
+        <h3 class="text-lg font-semibold mb-3 text-indigo-300 flex items-center space-x-2">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>1D CNN Training Performance & ROC Curves</span>
+        </h3>
+        <img src="frontend/assets/cnn_classification_performance.png" alt="CNN Performance" class="rounded-lg w-full border border-slate-700 bg-slate-950" onerror="this.onerror=null; this.src='/static/cnn_classification_performance.png';">
+        <p class="text-xs text-slate-400 mt-3">
+          Single-trial classification yields 92.02% recall, while subject-level aggregated predictions reach 84.38% ROC-AUC.
+        </p>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE TRIAL SIMULATOR (VANILLA JS) -->
+    <div class="glass-card p-8 border-sky-500/30">
+      <h3 class="text-lg font-bold text-white mb-2 flex items-center space-x-2">
+        <i class="fa-solid fa-sliders text-sky-400"></i>
+        <span>Interactive Single-Trial Inference Simulator</span>
+      </h3>
+      <p class="text-xs md:text-sm text-slate-400 mb-6">
+        Adjust the simulated N100 sensory attenuation amplitudes ($ERP_{passive} - ERP_{active}$) across midline electrodes to simulate 1D CNN prediction:
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Fz Frontal Attenuation (µV):</span>
+              <span id="val_fz" class="font-mono text-sky-400 font-bold">1.2 µV</span>
+            </div>
+            <input type="range" id="slider_fz" min="-3.0" max="6.0" step="0.1" value="1.2" class="w-full accent-sky-400">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>FCz Fronto-Central Attenuation (µV):</span>
+              <span id="val_fcz" class="font-mono text-indigo-400 font-bold">1.5 µV</span>
+            </div>
+            <input type="range" id="slider_fcz" min="-3.0" max="6.0" step="0.1" value="1.5" class="w-full accent-indigo-400">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Cz Central Vertex Attenuation (µV):</span>
+              <span id="val_cz" class="font-mono text-purple-400 font-bold">1.1 µV</span>
+            </div>
+            <input type="range" id="slider_cz" min="-3.0" max="6.0" step="0.1" value="1.1" class="w-full accent-purple-400">
+          </div>
+        </div>
+
+        <div class="bg-slate-900/80 p-5 rounded-xl border border-slate-700">
+          <div class="text-xs uppercase text-slate-400 mb-2 font-semibold">Model Posterior Prediction:</div>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-amber-400 font-medium">Schizophrenia Spectrum Probability:</span>
+                <span id="prob_sz_text" class="font-bold text-amber-400">50.0%</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-3">
+                <div id="prob_sz_bar" class="bg-amber-500 h-3 rounded-full transition-all duration-300" style="width: 50%;"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-emerald-400 font-medium">Healthy Control Probability:</span>
+                <span id="prob_hc_text" class="font-bold text-emerald-400">50.0%</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-3">
+                <div id="prob_hc_bar" class="bg-emerald-500 h-3 rounded-full transition-all duration-300" style="width: 50%;"></div>
+              </div>
+            </div>
+          </div>
+          <div id="sim_status_box" class="mt-4 p-3 rounded-lg text-xs border border-amber-800/60 bg-amber-950/30 text-amber-300">
+            Simulating trial inference...
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: STATISTICAL ANALYSIS TABLE -->
+  <section id="statistics" class="max-w-7xl mx-auto px-6 py-12">
+    <h2 class="text-2xl md:text-3xl font-bold mb-4 flex items-center space-x-3">
+      <span class="text-indigo-400"><i class="fa-solid fa-table"></i></span>
+      <span>2. Statistical ANOVA & Effect Sizes</span>
+    </h2>
+    <p class="text-sm text-slate-400 mb-8">
+      Two-tailed independent t-tests comparing sensory attenuation ($ERP_{passive} - ERP_{active}$) across midline electrode sites:
+    </p>
+
+    <div class="glass-card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-300">
+          <thead class="bg-slate-800/90 text-xs uppercase text-slate-400 border-b border-slate-700">
+            <tr>
+              <th class="py-3 px-4">Electrode Site</th>
+              <th class="py-3 px-4">Controls ($N=32$)</th>
+              <th class="py-3 px-4">Schizophrenia ($N=49$)</th>
+              <th class="py-3 px-4">t-statistic</th>
+              <th class="py-3 px-4">p-value</th>
+              <th class="py-3 px-4">Cohen's d (Effect Size)</th>
+              <th class="py-3 px-4">Clinical Interpretation</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-sky-400">Fz (Frontal Midline)</td>
+              <td class="py-3.5 px-4 font-mono">2.19 ± 1.68 µV</td>
+              <td class="py-3.5 px-4 font-mono">0.65 ± 2.43 µV</td>
+              <td class="py-3.5 px-4 font-mono font-bold">3.124</td>
+              <td class="py-3.5 px-4 text-emerald-400 font-bold">0.0025 **</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-xs font-semibold">0.710 (Large)</span></td>
+              <td class="py-3.5 px-4 text-xs text-slate-400">70.3% loss of frontal sensory attenuation</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-sky-400">FCz (Fronto-Central)</td>
+              <td class="py-3.5 px-4 font-mono">2.27 ± 1.90 µV</td>
+              <td class="py-3.5 px-4 font-mono">1.04 ± 2.66 µV</td>
+              <td class="py-3.5 px-4 font-mono font-bold">2.281</td>
+              <td class="py-3.5 px-4 text-emerald-400 font-bold">0.0253 *</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-xs font-semibold">0.518 (Medium)</span></td>
+              <td class="py-3.5 px-4 text-xs text-slate-400">54.2% loss of fronto-central attenuation</td>
+            </tr>
+            <tr>
+              <td class="py-3.5 px-4 font-bold text-sky-400">Cz (Central Vertex)</td>
+              <td class="py-3.5 px-4 font-mono">2.18 ± 2.20 µV</td>
+              <td class="py-3.5 px-4 font-mono">0.97 ± 2.33 µV</td>
+              <td class="py-3.5 px-4 font-mono font-bold">2.340</td>
+              <td class="py-3.5 px-4 text-emerald-400 font-bold">0.0218 *</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-xs font-semibold">0.532 (Medium)</span></td>
+              <td class="py-3.5 px-4 text-xs text-slate-400">55.5% loss of auditory cortex attenuation</td>
+            </tr>
+            <tr class="bg-slate-800/50">
+              <td class="py-3.5 px-4 font-extrabold text-indigo-400">Midline Composite</td>
+              <td class="py-3.5 px-4 font-mono font-medium">2.21 ± 1.82 µV</td>
+              <td class="py-3.5 px-4 font-mono font-medium">0.88 ± 2.37 µV</td>
+              <td class="py-3.5 px-4 font-mono font-extrabold">2.698</td>
+              <td class="py-3.5 px-4 text-emerald-400 font-extrabold">0.0085 **</td>
+              <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 text-xs font-bold">0.613 (Mod-Large)</span></td>
+              <td class="py-3.5 px-4 text-xs text-slate-300 font-medium">Global corollary discharge deficit verified</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="p-3 bg-slate-900 border-t border-slate-800 text-xs text-slate-500">
+        * $p < 0.05$, ** $p < 0.01$. Degrees of freedom = 79. Effect size calculated using pooled standard deviations (Cohen's $d$).
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: CLINICAL SAFETY GUARDRAILS & RAG -->
+  <section id="safety" class="max-w-7xl mx-auto px-6 py-12">
+    <h2 class="text-2xl md:text-3xl font-bold mb-4 flex items-center space-x-3">
+      <span class="text-purple-400"><i class="fa-solid fa-shield-halved"></i></span>
+      <span>3. Clinical Safety Guardrails & Anti-Hallucination Protocol</span>
+    </h2>
+    <p class="text-sm text-slate-400 mb-8">
+      Four non-negotiable safety guardrails rigorously validated across 19 edge-case tests.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="glass-card p-6 border-red-900/40 bg-red-950/10">
+        <div class="flex items-center space-x-3 mb-3">
+          <span class="text-red-400 text-xl"><i class="fa-solid fa-triangle-exclamation"></i></span>
+          <h3 class="font-bold text-white text-base">Acute Crisis Fallback Override</h3>
+        </div>
+        <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+          Any detection of self-harm, suicidal ideation, or acute distress immediately overrides standard text with 24/7 emergency hotlines:
+        </p>
+        <div class="bg-slate-900/90 p-4 rounded-lg border border-red-800/40 text-xs text-slate-300 space-y-1">
+          <div>• <strong>988 Suicide & Crisis Lifeline:</strong> Call/Text 988 (Free, 24/7)</div>
+          <div>• <strong>Crisis Text Line:</strong> Text HOME to 741741</div>
+          <div>• <strong>The Trevor Project:</strong> 1-866-488-7386</div>
+          <div>• <strong>International:</strong> findahelpline.com / befrienders.org</div>
+        </div>
+      </div>
+
+      <div class="glass-card p-6 border-sky-900/40 bg-sky-950/10">
+        <div class="flex items-center space-x-3 mb-3">
+          <span class="text-sky-400 text-xl"><i class="fa-solid fa-anchor"></i></span>
+          <h3 class="font-bold text-white text-base">Reality-Grounding Protocol</h3>
+        </div>
+        <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+          When ungrounded persecutory delusions (chips in brain, surveillance, mind-control) are detected:
+        </p>
+        <div class="bg-slate-900/90 p-4 rounded-lg border border-sky-800/40 text-xs text-slate-300 space-y-1">
+          <div>• <strong>DO NOT</strong> validate, confirm, or elaborate on the false premise.</div>
+          <div>• <strong>DO</strong> validate the emotional distress and anxiety experienced.</div>
+          <div>• <strong>DO</strong> guide toward 5-4-3-2-1 somatosensory grounding exercises.</div>
+          <div>• <strong>DO</strong> encourage consultation with a healthcare professional.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: GOOGLE NOTEBOOKLM HUB -->
+  <section id="notebooklm" class="max-w-7xl mx-auto px-6 py-12">
+    <div class="glass-card p-8 md:p-12 border-indigo-500/40 relative overflow-hidden bg-gradient-to-br from-indigo-950/40 via-slate-900 to-purple-950/30">
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-900/60 border border-indigo-700 text-indigo-300 text-xs mb-4">
+          <i class="fa-solid fa-microphone-lines"></i>
+          <span>Google Labs Integration</span>
+        </div>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">
+          Google NotebookLM Research Hub
+        </h2>
+        <p class="text-slate-300 text-sm md:text-base mb-6 leading-relaxed">
+          Transform this schizophrenia electrophysiology project into an AI-powered conversational <strong>Audio Overview (Podcast)</strong> and deep-dive study guide using Google NotebookLM.
+        </p>
+
+        <div class="space-y-4 mb-8 text-xs md:text-sm text-slate-300">
+          <div class="flex items-start space-x-3">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold shrink-0">1</span>
+            <span>Download the curated Markdown Research Source Pack containing clinical findings and 1D CNN metrics.</span>
+          </div>
+          <div class="flex items-start space-x-3">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+            <span>Upload the file into <a href="https://notebooklm.google.com/" target="_blank" class="text-indigo-400 underline font-semibold">notebooklm.google.com</a>.</span>
+          </div>
+          <div class="flex items-start space-x-3">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold shrink-0">3</span>
+            <span>Click <strong>"Generate"</strong> under Audio Overview to hear two AI hosts hold a conversational deep-dive podcast on your research!</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-4">
+          <a href="https://notebooklm.google.com/" target="_blank" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/40 transition flex items-center space-x-2 text-sm">
+            <span>🚀 Launch Google NotebookLM</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+          </a>
+          <a href="notebooklm/notebooklm_schizophrenia_source_pack.md" download="notebooklm_schizophrenia_source_pack.md" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium transition flex items-center space-x-2 text-sm">
+            <i class="fa-solid fa-download"></i>
+            <span>Download Source Pack (.md)</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 py-12 px-6 text-center text-sm text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <span class="text-2xl">🧠</span>
+        <span class="font-bold text-white text-base">NeuroRetrieval</span>
+      </div>
+      <p class="text-xs text-slate-500">
+        Educational & scientific computational neuroscience research. Not a substitute for clinical psychiatric care.
+      </p>
+      <div class="flex items-center space-x-4 text-xs text-slate-400">
+        <a href="http://localhost:8501" target="_blank" class="hover:text-sky-400">Streamlit UI</a>
+        <a href="http://localhost:8000/docs" target="_blank" class="hover:text-sky-400">Swagger API</a>
+        <a href="https://notebooklm.google.com/" target="_blank" class="hover:text-indigo-400">NotebookLM</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- INTERACTIVE SIMULATOR SCRIPT -->
+  <script>
+    const sFz = document.getElementById('slider_fz');
+    const sFCz = document.getElementById('slider_fcz');
+    const sCz = document.getElementById('slider_cz');
+    const vFz = document.getElementById('val_fz');
+    const vFCz = document.getElementById('val_fcz');
+    const vCz = document.getElementById('val_cz');
+    const pSzText = document.getElementById('prob_sz_text');
+    const pHcText = document.getElementById('prob_hc_text');
+    const pSzBar = document.getElementById('prob_sz_bar');
+    const pHcBar = document.getElementById('prob_hc_bar');
+    const statusBox = document.getElementById('sim_status_box');
+
+    function updateSim() {
+      const fz = parseFloat(sFz.value);
+      const fcz = parseFloat(sFCz.value);
+      const cz = parseFloat(sCz.value);
+
+      vFz.innerText = fz.toFixed(1) + ' µV';
+      vFCz.innerText = fcz.toFixed(1) + ' µV';
+      vCz.innerText = cz.toFixed(1) + ' µV';
+
+      const meanAtten = (fz + fcz + cz) / 3.0;
+      // Logistic sigmoid: lower attenuation (< 1.2 uV) corresponds to SZ deficit
+      const szProb = 1.0 / (1.0 + Math.exp(1.8 * (meanAtten - 1.2)));
+      const hcProb = 1.0 - szProb;
+
+      const szPercent = (szProb * 100).toFixed(1);
+      const hcPercent = (hcProb * 100).toFixed(1);
+
+      pSzText.innerText = szPercent + '%';
+      pHcText.innerText = hcPercent + '%';
+      pSzBar.style.width = szPercent + '%';
+      pHcBar.style.width = hcPercent + '%';
+
+      if (szProb > 0.5) {
+        statusBox.className = 'mt-4 p-3 rounded-lg text-xs border border-amber-800/60 bg-amber-950/30 text-amber-300';
+        statusBox.innerHTML = '⚠️ <strong>Classification: Schizophrenia Spectrum Pattern</strong> (Diminished N100 attenuation, confidence: ' + szPercent + '%)';
+      } else {
+        statusBox.className = 'mt-4 p-3 rounded-lg text-xs border border-emerald-800/60 bg-emerald-950/30 text-emerald-300';
+        statusBox.innerHTML = '✅ <strong>Classification: Healthy Control Pattern</strong> (Intact N100 corollary discharge, confidence: ' + hcPercent + '%)';
+      }
+    }
+
+    sFz.addEventListener('input', updateSim);
+    sFCz.addEventListener('input', updateSim);
+    sCz.addEventListener('input', updateSim);
+    updateSim();
+  </script>
+</body>
+</html>

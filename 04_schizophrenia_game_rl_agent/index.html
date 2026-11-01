@@ -1,0 +1,2834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Antigravity: The Endless Route</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    :root {
+      --color-cyan: #00f0ff;
+      --color-magenta: #ff007f;
+      --color-gold: #ffd700;
+      --color-zenith: #1a0b2e;
+      --color-horizon: #d9534f;
+      --active-accent: var(--color-cyan);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0b0512;
+      color: #fff;
+      font-family: 'Rajdhani', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    #webgl-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      cursor: crosshair;
+    }
+
+    /* Screen vignette & twilight filter */
+    .screen-fx {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      background: radial-gradient(circle at center, transparent 40%, rgba(12, 4, 18, 0.45) 85%, rgba(10, 2, 14, 0.85) 100%);
+      mix-blend-mode: multiply;
+    }
+
+    .harmonic-pulse-fx {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 6;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      box-shadow: inset 0 0 100px var(--active-accent);
+    }
+
+    /* HUD OVERLAY */
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 32px;
+    }
+
+    /* TOP HEADER */
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    .brand-box {
+      background: rgba(26, 11, 46, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-left: 4px solid var(--active-accent);
+      padding: 12px 18px;
+      border-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      transition: border-color 0.4s ease;
+    }
+
+    .brand-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title span {
+      color: var(--active-accent);
+      transition: color 0.4s ease;
+    }
+
+    .brand-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.65);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* TOP CENTER: HARMONIC SYNC CARD */
+    .phase-card {
+      background: rgba(18, 8, 30, 0.7);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-top: 3px solid var(--active-accent);
+      padding: 14px 28px;
+      border-radius: 6px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
+      min-width: 320px;
+    }
+
+    .phase-card.resonating {
+      box-shadow: 0 0 25px var(--active-accent), 0 8px 32px rgba(0, 0, 0, 0.6);
+    }
+
+    .phase-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: var(--active-accent);
+      text-transform: uppercase;
+      transition: color 0.4s ease;
+    }
+
+    .phase-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #fff;
+      margin: 2px 0 10px 0;
+      text-transform: uppercase;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #d9534f, var(--active-accent));
+      border-radius: 4px;
+      transition: width 0.1s linear, background 0.4s ease;
+      box-shadow: 0 0 12px var(--active-accent);
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 6px;
+    }
+
+    .hud-controls-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .agent-mode-selector {
+      display: flex;
+      gap: 6px;
+      background: rgba(14, 6, 24, 0.75);
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+    }
+
+    .hud-btn {
+      background: rgba(26, 11, 46, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      padding: 7px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .hud-btn:hover {
+      background: var(--active-accent);
+      color: #0b0512;
+      border-color: var(--active-accent);
+      box-shadow: 0 0 15px var(--active-accent);
+    }
+
+    .hud-btn.active-agent {
+      background: var(--active-accent);
+      color: #0b0512;
+      border-color: var(--active-accent);
+      box-shadow: 0 0 16px var(--active-accent);
+      font-weight: 700;
+    }
+
+    .hud-btn.btn-sz.active-agent {
+      background: #ff007f;
+      border-color: #ff007f;
+      color: #fff;
+      box-shadow: 0 0 18px rgba(255, 0, 127, 0.85);
+    }
+
+    .hud-btn.btn-hc.active-agent {
+      background: #00f0ff;
+      border-color: #00f0ff;
+      color: #0b0512;
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.85);
+    }
+
+    .hud-btn.btn-train.active-agent {
+      background: #ffd700;
+      border-color: #ffd700;
+      color: #0b0512;
+      box-shadow: 0 0 18px rgba(255, 215, 0, 0.85);
+    }
+
+    /* NEURO-AGENT MONITOR PANEL */
+    .neuro-panel {
+      position: absolute;
+      left: 32px;
+      top: 96px;
+      width: 330px;
+      background: rgba(12, 5, 22, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-left: 3px solid var(--active-accent);
+      border-radius: 6px;
+      padding: 12px 14px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      pointer-events: auto;
+      z-index: 15;
+      transition: border-color 0.4s ease;
+    }
+
+    .neuro-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .neuro-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .neuro-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .badge-manual {
+      background: rgba(255, 255, 255, 0.12);
+      color: #bbb;
+    }
+
+    .badge-sz {
+      background: rgba(255, 0, 127, 0.25);
+      color: #ff007f;
+      border: 1px solid #ff007f;
+      box-shadow: 0 0 8px rgba(255, 0, 127, 0.4);
+    }
+
+    .badge-hc {
+      background: rgba(0, 240, 255, 0.25);
+      color: #00f0ff;
+      border: 1px solid #00f0ff;
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+    }
+
+    .badge-train {
+      background: rgba(255, 215, 0, 0.25);
+      color: #ffd700;
+      border: 1px solid #ffd700;
+      box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+    }
+
+    .eeg-monitor-box {
+      background: rgba(6, 2, 12, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 6px 8px;
+      margin-bottom: 8px;
+    }
+
+    .eeg-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.65);
+      margin-bottom: 4px;
+    }
+
+    #eeg-canvas {
+      width: 100%;
+      height: 60px;
+      display: block;
+      background: #07030e;
+      border-radius: 3px;
+    }
+
+    .eeg-legend {
+      display: flex;
+      gap: 12px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 4px;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 2px;
+      vertical-align: middle;
+    }
+
+    .dot-active { background: #00f0ff; }
+    .dot-passive { background: #888; }
+    .dot-sz { background: #ff007f; }
+
+    .neuro-metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 8px;
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 4px 6px;
+      border-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .m-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
+    }
+
+    .m-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: #fff;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    /* RIGHT SIDE: VERTICAL THROTTLE SLIDER */
+    .throttle-container {
+      position: absolute;
+      right: 32px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(18, 8, 30, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 20px 14px;
+      border-radius: 8px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .throttle-track-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      height: 240px;
+      width: 44px;
+    }
+
+    .throttle-track {
+      position: relative;
+      width: 10px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+    }
+
+    .throttle-fill {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(0deg, #d9534f, var(--active-accent));
+      border-radius: 5px;
+      box-shadow: 0 0 10px var(--active-accent);
+      transition: height 0.05s linear;
+    }
+
+    .throttle-thumb {
+      position: absolute;
+      bottom: 0%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      width: 28px;
+      height: 14px;
+      background: #fff;
+      border: 2px solid var(--active-accent);
+      border-radius: 3px;
+      box-shadow: 0 0 14px var(--active-accent);
+      cursor: grab;
+      transition: bottom 0.05s linear;
+    }
+
+    .throttle-thumb:active {
+      cursor: grabbing;
+      transform: translate(-50%, 50%) scale(1.1);
+    }
+
+    /* Target bracket markers on throttle */
+    .throttle-target-zone {
+      position: absolute;
+      left: -6px;
+      width: 22px;
+      background: rgba(0, 240, 255, 0.25);
+      border-left: 3px solid var(--active-accent);
+      border-right: 3px solid var(--active-accent);
+      pointer-events: none;
+      transition: all 0.4s ease;
+    }
+
+    .throttle-markers {
+      position: relative;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+      pointer-events: none;
+    }
+
+    .throttle-label {
+      font-family: 'Orbitron', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--active-accent);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    /* BOTTOM HUD: SPEEDOMETER & TACHOMETER */
+    .hud-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 16px;
+    }
+
+    .narrative-prompt {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: #fff;
+      text-align: center;
+      background: rgba(18, 8, 30, 0.75);
+      padding: 10px 24px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-bottom: 2px solid var(--active-accent);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      text-transform: uppercase;
+      max-width: 680px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+      transition: border-color 0.3s ease, color 0.3s ease;
+      animation: subtitleGlow 3s infinite alternate;
+    }
+
+    @keyframes subtitleGlow {
+      from { border-bottom-color: var(--active-accent); }
+      to { border-bottom-color: rgba(255, 255, 255, 0.4); }
+    }
+
+    .speed-cluster {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(18, 8, 30, 0.7);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: 3px solid var(--active-accent);
+      border-radius: 8px;
+      padding: 14px 36px 18px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+      transition: border-color 0.4s ease;
+    }
+
+    .speed-readout {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .speed-value {
+      font-size: 44px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .speed-unit {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--active-accent);
+      letter-spacing: 1px;
+    }
+
+    .target-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--active-accent);
+      letter-spacing: 1px;
+      margin-top: -4px;
+      margin-bottom: 8px;
+    }
+
+    /* HORIZONTAL TACHOMETER */
+    .tachometer-bar {
+      position: relative;
+      width: 320px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .tachometer-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #d9534f, var(--active-accent));
+      border-radius: 6px;
+      box-shadow: 0 0 12px var(--active-accent);
+      transition: width 0.05s linear;
+    }
+
+    .tachometer-target-bracket {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.3);
+      border-left: 2px solid #fff;
+      border-right: 2px solid #fff;
+      box-shadow: 0 0 8px #fff;
+      transition: left 0.4s ease, width 0.4s ease;
+    }
+
+    /* CORNER CONTROLS HINT */
+    .controls-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 32px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      background: rgba(18, 8, 30, 0.5);
+      backdrop-filter: blur(6px);
+      padding: 8px 14px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      line-height: 1.5;
+    }
+
+    .controls-hint kbd {
+      color: var(--active-accent);
+      font-weight: bold;
+    }
+
+    /* OVERLAYS: START & VICTORY MODALS */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 100;
+      background: radial-gradient(circle at center, rgba(26, 11, 46, 0.88) 0%, rgba(10, 3, 16, 0.98) 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      opacity: 1;
+      transition: opacity 0.6s ease;
+    }
+
+    .modal-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .modal-card {
+      max-width: 580px;
+      width: 90%;
+      background: rgba(22, 10, 36, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-top: 4px solid var(--color-cyan);
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 240, 255, 0.2);
+    }
+
+    .modal-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #fff;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .modal-title span {
+      color: var(--color-cyan);
+    }
+
+    .modal-subtitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: #d9534f;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .modal-desc {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 28px;
+    }
+
+    .modal-desc strong {
+      color: var(--color-cyan);
+    }
+
+    .modal-rules {
+      text-align: left;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.75);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-rules div span {
+      color: var(--color-gold);
+    }
+
+    .cta-button {
+      background: linear-gradient(135deg, #00f0ff, #0088ff);
+      color: #0b0512;
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      padding: 16px 36px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    .cta-button:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 35px rgba(0, 240, 255, 0.8);
+    }
+
+    .cta-button:active {
+      transform: scale(0.98);
+    }
+
+    /* VICTORY SPECIFIC */
+    .victory-card {
+      border-top-color: var(--color-gold);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.3);
+    }
+
+    .victory-card .modal-title span {
+      color: var(--color-gold);
+    }
+
+    .victory-btn {
+      background: linear-gradient(135deg, #ffd700, #ff8800);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+    }
+
+    .victory-btn:hover {
+      box-shadow: 0 0 35px rgba(255, 215, 0, 0.9);
+    }
+
+    @media (max-width: 768px) {
+      #hud {
+        padding: 16px;
+      }
+      .brand-box {
+        display: none;
+      }
+      .phase-card {
+        min-width: 220px;
+        padding: 10px 16px;
+      }
+      .throttle-container {
+        right: 12px;
+        padding: 12px 8px;
+      }
+      .controls-hint {
+        display: none;
+      }
+      .speed-value {
+        font-size: 32px;
+      }
+      .tachometer-bar {
+        width: 220px;
+      }
+      .narrative-prompt {
+        font-size: 12px;
+        padding: 8px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D Render Canvas -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- Atmospheric Screen FX -->
+  <div class="screen-fx"></div>
+  <div id="pulse-fx" class="harmonic-pulse-fx"></div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <!-- TOP SECTION -->
+    <div class="hud-top">
+      <div class="brand-box">
+        <div class="brand-title">ROUTE 9 <span>//</span> ANOMALY</div>
+        <div class="brand-sub">ANTIGRAVITY HARMONIC RESONANCE</div>
+      </div>
+
+      <!-- CENTER: HARMONIC SYNC STATUS -->
+      <div id="phase-card" class="phase-card">
+        <div id="phase-title" class="phase-title">HARMONIC SYNC: PHASE 1 / 3</div>
+        <div id="phase-name" class="phase-name">THE STALKING CADENCE</div>
+        <div class="progress-bar-container">
+          <div id="progress-bar" class="progress-bar-fill"></div>
+        </div>
+        <div class="progress-meta">
+          <span id="target-spec">ZONE: 2.5 ± 0.4 m/s</span>
+          <span id="progress-percent">0%</span>
+        </div>
+      </div>
+
+      <!-- TOP RIGHT: AGENT CONTROLS & UTILITIES -->
+      <div class="hud-controls-top">
+        <div class="agent-mode-selector">
+          <button id="btn-mode-manual" class="hud-btn active-agent" title="Drive manually with WASD / Arrow Keys">MANUAL</button>
+          <button id="btn-mode-sz" class="hud-btn btn-sz" title="Schizophrenia Agent: Impaired Sensory Attenuation & Reality Grounding">🧠 SZ AGENT</button>
+          <button id="btn-mode-hc" class="hud-btn btn-hc" title="Healthy Control Agent: Full Sensory Attenuation Baseline">⚡ HC AGENT</button>
+          <button id="btn-mode-train" class="hud-btn btn-train" title="Live Reinforcement Learning Training Mode">🏋️ TRAIN RL</button>
+        </div>
+        <button id="btn-audio" class="hud-btn">AUDIO: ON</button>
+        <button id="btn-fullscreen" class="hud-btn">FULLSCREEN</button>
+      </div>
+    </div>
+
+    <!-- LEFT: NEUROCOMPUTATIONAL AGENT & EEG MONITOR -->
+    <div id="neuro-agent-panel" class="neuro-panel">
+      <div class="neuro-header">
+        <div class="neuro-title">NEURO-AGENT // TELEMETRY</div>
+        <div id="neuro-agent-badge" class="neuro-badge badge-manual">MANUAL DRIVE</div>
+      </div>
+      
+      <!-- Live Realtime EEG Canvas -->
+      <div class="eeg-monitor-box">
+        <div class="eeg-labels">
+          <span>N100 SENSORY ATTENUATION</span>
+          <span id="eeg-attenuation-val">ATTEN: 2.21 µV</span>
+        </div>
+        <canvas id="eeg-canvas" width="300" height="60"></canvas>
+        <div class="eeg-legend">
+          <span><span class="legend-dot dot-active"></span>Active (Motor Tone)</span>
+          <span><span class="legend-dot dot-passive"></span>Passive Tone</span>
+          <span><span class="legend-dot dot-sz"></span>SZ Deficit</span>
+        </div>
+      </div>
+
+      <!-- Realtime Metrics Grid -->
+      <div class="neuro-metrics-grid">
+        <div class="metric-item">
+          <span class="m-label">COROLLARY DISCHARGE Δ</span>
+          <span id="m-cd-error" class="m-val">0.00 m/s</span>
+        </div>
+        <div class="metric-item">
+          <span class="m-label">SENSORY ATTENUATION</span>
+          <span id="m-sensory-atten" class="m-val">100.0% (NORMAL)</span>
+        </div>
+        <div class="metric-item">
+          <span class="m-label">AGENT DECISION</span>
+          <span id="m-policy-act" class="m-val">PLAYER INPUT</span>
+        </div>
+        <div class="metric-item">
+          <span class="m-label">REALITY GROUNDING</span>
+          <span id="m-grounding-status" class="m-val">STANDBY</span>
+        </div>
+        <div class="metric-item">
+          <span class="m-label">RL EPISODE / WINS</span>
+          <span id="m-rl-episodes" class="m-val">EP 1 · 0 WINS</span>
+        </div>
+        <div class="metric-item">
+          <span class="m-label">POLICY REWARD</span>
+          <span id="m-rl-reward" class="m-val">+0.0 PTS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: INTERACTIVE VERTICAL THROTTLE SLIDER -->
+    <div class="throttle-container" id="throttle-container">
+      <div class="throttle-label">SPEED THROTTLE</div>
+      <div class="throttle-track-box">
+        <div class="throttle-track" id="throttle-track">
+          <!-- Target bracket highlight -->
+          <div id="throttle-target-zone" class="throttle-target-zone"></div>
+          <div id="throttle-fill" class="throttle-fill"></div>
+          <div id="throttle-thumb" class="throttle-thumb"></div>
+        </div>
+      </div>
+      <div class="throttle-markers">
+        <span>12.0</span>
+        <span>8.5</span>
+        <span>5.0</span>
+        <span>2.5</span>
+        <span>0.0</span>
+      </div>
+    </div>
+
+    <!-- BOTTOM: SPEEDOMETER & TACHOMETER & NARRATIVE -->
+    <div class="hud-bottom">
+      <div id="narrative-prompt" class="narrative-prompt">
+        THEY ONLY MOVE WHEN YOU MOVE. MATCH THEIR FREQUENCY.
+      </div>
+
+      <div class="speed-cluster">
+        <div class="speed-readout">
+          <span id="speed-value" class="speed-value">00.0</span>
+          <span class="speed-unit">m/s</span>
+        </div>
+        <div id="target-tag" class="target-tag">TARGET ZONE: 2.1 — 2.9 m/s</div>
+        <div class="tachometer-bar">
+          <div id="tachometer-target" class="tachometer-target-bracket"></div>
+          <div id="tachometer-fill" class="tachometer-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CORNER CONTROL TIPS -->
+    <div class="controls-hint">
+      <div><kbd>W / S</kbd> or <kbd>▲ / ▼</kbd> : ACCELERATE / DECELERATE</div>
+      <div><kbd>SHIFT</kbd> : ACCELERATION BOOST</div>
+      <div><kbd>SPACE</kbd> : EMERGENCY BRAKE (0 m/s)</div>
+      <div><kbd>SCROLL / SLIDER</kbd> : FINE THROTTLE</div>
+      <div><kbd>CLICK & DRAG</kbd> : LOOK / PARALLAX</div>
+    </div>
+  </div>
+
+  <!-- START MODAL OVERLAY -->
+  <div id="start-overlay" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-title">ANTIGRAVITY: <span>ROUTE 9</span></div>
+      <div class="modal-subtitle">THE ENDLESS ROUTE · HARMONIC SPEED SYNCHRONIZER</div>
+      <div class="modal-desc">
+        You are traversing an endless twilight highway where the laws of gravitation have disintegrated.
+        The surreal entities inhabiting the roadside are locked in a <strong>1:1 mathematical sync</strong> with your velocity.
+        <strong>When you stop, they freeze dead in eerie suspension.</strong>
+      </div>
+      <div class="modal-rules">
+        <div><span>PHASE 1:</span> Match the <strong>Stalking Cadence (2.5 m/s)</strong> for 4 continuous seconds.</div>
+        <div><span>PHASE 2:</span> Match the <strong>Frenzy Stride (8.5 m/s)</strong> as guardrails rip skyward.</div>
+        <div><span>PHASE 3:</span> Slam brakes to <strong>Absolute Stillness (0.0 m/s)</strong> to unlock the portal.</div>
+      </div>
+      <button id="btn-start" class="cta-button">ENTER ROUTE 9</button>
+    </div>
+  </div>
+
+  <!-- VICTORY MODAL OVERLAY -->
+  <div id="victory-overlay" class="modal-overlay hidden">
+    <div class="modal-card victory-card">
+      <div class="modal-title">ANOMALY <span>TRANSCENDED</span></div>
+      <div class="modal-subtitle">HARMONIC RESONANCE MAXIMUM ACHIEVED</div>
+      <div class="modal-desc">
+        The highway's temporal anchor has shattered. The massive antigravity portal ahead is pulling
+        fractured highway fragments and roadside entities into the celestial singularity.
+        Your speed limiter has been unlocked.
+      </div>
+      <button id="btn-portal" class="cta-button victory-btn">ENTER THE SINGULARITY (WARP SPEED)</button>
+    </div>
+  </div>
+
+  <!-- MAIN SCRIPT -->
+  <script>
+    /* ==========================================================================
+       ANTIGRAVITY: THE ENDLESS ROUTE
+       Procedural 3D First-Person Web Prototype
+       Zero external asset dependencies
+       ========================================================================== */
+
+    // --- GAME STATE ---
+    const STATE = {
+      playerSpeed: 0.0,
+      targetSpeed: 0.0,
+      maxSpeed: 12.0,
+      cameraZ: 0.0,
+      bobTimer: 0.0,
+      footstepTimer: 0.0,
+      audioInitialized: false,
+      audioMuted: false,
+
+      // Parallax look
+      yaw: 0.0,
+      pitch: 0.0,
+      targetYaw: 0.0,
+      targetPitch: 0.0,
+      isMouseDown: false,
+      prevMouseX: 0,
+      prevMouseY: 0,
+
+      // Puzzle phases
+      phase: 1, // 1: 2.5m/s, 2: 8.5m/s, 3: 0.0m/s, 4: unlocked
+      phaseTimer: 0.0,
+      phaseTargetDuration: 4.0,
+      inTargetZone: false,
+      guardrailLift: 0.0,
+      portalSpawned: false,
+      warpMode: false,
+
+      // Neurocomputational Agent System
+      agentMode: 'manual', // 'manual' | 'sz' | 'hc' | 'train'
+      agentIsSprinting: false,
+      agentCdError: 0.0,
+      agentSensoryAtten: 2.213,
+      agentPolicyAct: 'PLAYER INPUT',
+      agentGrounding: 'STANDBY',
+      agentReward: 0.0,
+      agentEpisode: 1,
+      agentWins: 0,
+      agentEpsilon: 0.35,
+      loadedQTables: null
+    };
+
+    // Phase configurations
+    const PHASES = {
+      1: {
+        name: "THE STALKING CADENCE",
+        target: 2.5,
+        tolerance: 0.4,
+        colorHex: "#00f0ff",
+        colorRGB: new THREE.Color(0x00f0ff),
+        cssVar: "#00f0ff",
+        prompt: "PHASE 1: THE STALKING CADENCE (2.5 M/S). THEY STEP ONLY AS YOU MOVE."
+      },
+      2: {
+        name: "THE FRENZY STRIDE",
+        target: 8.5,
+        tolerance: 0.5,
+        colorHex: "#ff007f",
+        colorRGB: new THREE.Color(0xff007f),
+        cssVar: "#ff007f",
+        prompt: "PHASE 2: THE FRENZY STRIDE (8.5 M/S). GUARDRAILS DETACH INTO THE TWILIGHT SKY."
+      },
+      3: {
+        name: "ZERO-G STILLNESS",
+        target: 0.0,
+        tolerance: 0.15,
+        colorHex: "#ffd700",
+        colorRGB: new THREE.Color(0xffd700),
+        cssVar: "#ffd700",
+        prompt: "PHASE 3: ZERO-G STILLNESS. DROP VELOCITY TO 0.0 M/S (SPACEBAR) TO UNLOCK THE ANOMALY."
+      },
+      4: {
+        name: "ROUTE 9 TRANSCENDED",
+        target: 12.0,
+        tolerance: 12.0,
+        colorHex: "#ffd700",
+        colorRGB: new THREE.Color(0xffd700),
+        cssVar: "#ffd700",
+        prompt: "ANOMALY PORTAL AWAKENED. GRAVITATIONAL SINGULARITY ACTIVE."
+      }
+    };
+
+    // --- PROCEDURAL TEXTURE GENERATORS ---
+    function createAsphaltTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+
+      // Base asphalt color
+      ctx.fillStyle = '#141518';
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Micro-grain noise
+      const imgData = ctx.getImageData(0, 0, 512, 512);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const noise = (Math.random() - 0.5) * 24;
+        data[i] = Math.min(255, Math.max(0, data[i] + noise));
+        data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise));
+        data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise + 2)); // faint cool tint
+      }
+      ctx.putImageData(imgData, 0, 0);
+
+      // Procedural aggregate specks
+      for (let i = 0; i < 400; i++) {
+        const x = Math.random() * 512;
+        const y = Math.random() * 512;
+        const radius = Math.random() * 1.5 + 0.5;
+        const brightness = Math.floor(Math.random() * 45 + 30);
+        ctx.fillStyle = `rgb(${brightness},${brightness},${brightness + 5})`;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Asphalt cracks
+      ctx.strokeStyle = '#0b0c0e';
+      ctx.lineWidth = 1.2;
+      for (let c = 0; c < 6; c++) {
+        let x = Math.random() * 512;
+        let y = Math.random() * 512;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        for (let s = 0; s < 12; s++) {
+          x += (Math.random() - 0.5) * 35;
+          y += Math.random() * 25;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(2, 8);
+      return tex;
+    }
+
+    function createRoadMarkingsTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 1024;
+      const ctx = canvas.getContext('2d');
+
+      // Transparent base
+      ctx.clearRect(0, 0, 256, 1024);
+
+      // Outer lane borders (solid neon amber/white)
+      ctx.fillStyle = '#ffaa33';
+      ctx.shadowColor = '#ffaa33';
+      ctx.shadowBlur = 12;
+      ctx.fillRect(8, 0, 10, 1024);
+      ctx.fillRect(238, 0, 10, 1024);
+
+      // Center dashed lines
+      ctx.fillStyle = '#ffeeaa';
+      ctx.shadowColor = '#ffcc44';
+      ctx.shadowBlur = 16;
+      const dashLength = 160;
+      const gapLength = 180;
+      let y = 30;
+      while (y < 1024) {
+        ctx.fillRect(124, y, 8, dashLength);
+        y += dashLength + gapLength;
+      }
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(1, 4);
+      return tex;
+    }
+
+    function createGravelTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#100c14';
+      ctx.fillRect(0, 0, 256, 256);
+
+      const imgData = ctx.getImageData(0, 0, 256, 256);
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        const noise = (Math.random() - 0.5) * 45;
+        data[i] = Math.min(255, Math.max(0, data[i] + noise + 10));
+        data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise + 4));
+        data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise + 12));
+      }
+      ctx.putImageData(imgData, 0, 0);
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(4, 16);
+      return tex;
+    }
+
+    function createParticleSprite() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 64;
+      canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0.0, 'rgba(255, 255, 255, 1.0)');
+      grad.addColorStop(0.25, 'rgba(255, 160, 120, 0.85)');
+      grad.addColorStop(0.6, 'rgba(217, 83, 79, 0.4)');
+      grad.addColorStop(1.0, 'rgba(26, 11, 46, 0.0)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+
+      const tex = new THREE.CanvasTexture(canvas);
+      return tex;
+    }
+
+    function createPortalVortexTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, 512, 512);
+
+      const cx = 256, cy = 256;
+      // Spiral swirling rings
+      for (let r = 240; r > 10; r -= 4) {
+        const angleOffset = r * 0.1;
+        ctx.strokeStyle = `hsl(${(r * 2) % 360}, 90%, ${Math.min(80, 240 - r)}%)`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, angleOffset, angleOffset + Math.PI * 1.5);
+        ctx.stroke();
+      }
+
+      // Bright core
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 140);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.3, '#00f0ff');
+      grad.addColorStop(0.7, '#ff007f');
+      grad.addColorStop(1.0, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 140, 0, Math.PI * 2);
+      ctx.fill();
+
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    // --- THREE.JS INITIALIZATION ---
+    const canvas = document.getElementById('webgl-canvas');
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      antialias: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+
+    const scene = new THREE.Scene();
+    // Bruised deep violet blending to horizon burnt orange
+    scene.fog = new THREE.FogExp2(0x240d2a, 0.013);
+
+    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1200);
+    camera.position.set(0, 1.7, 0);
+
+    // --- LIGHTING ---
+    const ambientLight = new THREE.AmbientLight(0x381845, 1.2);
+    scene.add(ambientLight);
+
+    // Low twilight sun/moon along horizon
+    const horizonSun = new THREE.DirectionalLight(0xd9534f, 2.0);
+    horizonSun.position.set(0, 10, -300);
+    scene.add(horizonSun);
+
+    const zenithFill = new THREE.DirectionalLight(0x401b5a, 0.9);
+    zenithFill.position.set(0, 100, 0);
+    scene.add(zenithFill);
+
+    // --- CUSTOM SKY DOME SHADER ---
+    const skyGeo = new THREE.SphereGeometry(750, 32, 24);
+    const skyMat = new THREE.ShaderMaterial({
+      uniforms: {
+        zenithColor: { value: new THREE.Color(0x1a0b2e) }, // deep bruised violet
+        midColor: { value: new THREE.Color(0x561a4b) },    // rich magenta twilight
+        horizonColor: { value: new THREE.Color(0xd9534f) },// burnt orange
+        nadirColor: { value: new THREE.Color(0x0a0312) }   // dark earth void
+      },
+      vertexShader: `
+        varying vec3 vWorldPosition;
+        void main() {
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPos.xyz;
+          gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 zenithColor;
+        uniform vec3 midColor;
+        uniform vec3 horizonColor;
+        uniform vec3 nadirColor;
+        varying vec3 vWorldPosition;
+
+        void main() {
+          vec3 dir = normalize(vWorldPosition);
+          float y = dir.y;
+
+          vec3 sky;
+          if (y > 0.0) {
+            float tMid = smoothstep(0.0, 0.35, y);
+            float tZenith = smoothstep(0.35, 1.0, y);
+            vec3 lower = mix(horizonColor, midColor, tMid);
+            sky = mix(lower, zenithColor, tZenith);
+          } else {
+            float tGround = smoothstep(0.0, -0.4, y);
+            sky = mix(horizonColor, nadirColor, tGround);
+          }
+
+          // Subtle twilight stars
+          float starNoise = fract(sin(dot(dir.xz * 180.0, vec2(12.9898, 78.233))) * 43758.5453);
+          if (y > 0.25 && starNoise > 0.995) {
+            sky += vec3(0.7, 0.8, 1.0) * (starNoise - 0.995) * 120.0;
+          }
+
+          gl_FragColor = vec4(sky, 1.0);
+        }
+      `,
+      side: THREE.BackSide,
+      depthWrite: false
+    });
+    const skyDome = new THREE.Mesh(skyGeo, skyMat);
+    scene.add(skyDome);
+
+    // --- TEXTURES & MATERIALS ---
+    const asphaltTex = createAsphaltTexture();
+    const markingsTex = createRoadMarkingsTexture();
+    const gravelTex = createGravelTexture();
+    const particleTex = createParticleSprite();
+
+    const roadMaterial = new THREE.MeshStandardMaterial({
+      map: asphaltTex,
+      roughness: 0.35,
+      metalness: 0.15,
+      color: 0x222226
+    });
+
+    const markingsMaterial = new THREE.MeshStandardMaterial({
+      map: markingsTex,
+      transparent: true,
+      roughness: 0.2,
+      emissive: 0xff8833,
+      emissiveIntensity: 0.65
+    });
+
+    const shoulderMaterial = new THREE.MeshStandardMaterial({
+      map: gravelTex,
+      roughness: 0.9,
+      metalness: 0.05,
+      color: 0x1b1420
+    });
+
+    const metalGuardrailMaterial = new THREE.MeshStandardMaterial({
+      color: 0x8f99a8,
+      roughness: 0.25,
+      metalness: 0.85
+    });
+
+    // --- RECYCLABLE ROAD SEGMENT CHUNKS ---
+    const ROAD_WIDTH = 12.0;
+    const SHOULDER_WIDTH = 18.0;
+    const CHUNK_LENGTH = 40.0;
+    const NUM_CHUNKS = 10; // Total 400 meters of road
+    const roadChunks = [];
+
+    class RoadChunk {
+      constructor(zPos) {
+        this.group = new THREE.Group();
+        this.zPos = zPos;
+
+        // 1. Asphalt Roadway
+        const roadGeo = new THREE.PlaneGeometry(ROAD_WIDTH, CHUNK_LENGTH, 1, 1);
+        roadGeo.rotateX(-Math.PI / 2);
+        const roadMesh = new THREE.Mesh(roadGeo, roadMaterial);
+        roadMesh.position.y = 0.0;
+        this.group.add(roadMesh);
+
+        // 2. Road Markings (placed slightly above asphalt to prevent z-fighting)
+        const markingsGeo = new THREE.PlaneGeometry(ROAD_WIDTH * 0.96, CHUNK_LENGTH, 1, 1);
+        markingsGeo.rotateX(-Math.PI / 2);
+        const markingsMesh = new THREE.Mesh(markingsGeo, markingsMaterial);
+        markingsMesh.position.y = 0.005;
+        this.group.add(markingsMesh);
+
+        // 3. Gravel Shoulders (Left & Right)
+        const leftShoulderGeo = new THREE.PlaneGeometry(SHOULDER_WIDTH, CHUNK_LENGTH);
+        leftShoulderGeo.rotateX(-Math.PI / 2);
+        const leftShoulder = new THREE.Mesh(leftShoulderGeo, shoulderMaterial);
+        leftShoulder.position.set(-ROAD_WIDTH / 2 - SHOULDER_WIDTH / 2, -0.02, 0);
+        this.group.add(leftShoulder);
+
+        const rightShoulder = new THREE.Mesh(leftShoulderGeo, shoulderMaterial);
+        rightShoulder.position.set(ROAD_WIDTH / 2 + SHOULDER_WIDTH / 2, -0.02, 0);
+        this.group.add(rightShoulder);
+
+        // 4. Metallic Guardrails & Detached Antigravity Rails
+        this.guardrailObjects = [];
+        this.createGuardrails();
+
+        this.group.position.z = zPos;
+        scene.add(this.group);
+      }
+
+      createGuardrails() {
+        // Left & Right posts and rails
+        [-ROAD_WIDTH / 2 - 0.5, ROAD_WIDTH / 2 + 0.5].forEach((xSide, sideIndex) => {
+          const numPosts = 8;
+          for (let p = 0; p < numPosts; p++) {
+            const zLocal = -CHUNK_LENGTH / 2 + (p / (numPosts - 1)) * CHUNK_LENGTH;
+
+            // Vertical post
+            const postGeo = new THREE.BoxGeometry(0.18, 1.2, 0.18);
+            const post = new THREE.Mesh(postGeo, metalGuardrailMaterial);
+            post.position.set(xSide, 0.55, zLocal);
+            this.group.add(post);
+
+            // W-beam horizontal rail segment
+            const railGeo = new THREE.BoxGeometry(0.12, 0.35, CHUNK_LENGTH / (numPosts - 1));
+            const rail = new THREE.Mesh(railGeo, metalGuardrailMaterial);
+            rail.position.set(xSide, 0.85, zLocal);
+            this.group.add(rail);
+
+            // Antigravity detached warped rail piece that curls into the sky
+            if (p % 4 === 1) {
+              const warpGroup = new THREE.Group();
+              const detachedRailGeo = new THREE.BoxGeometry(0.1, 0.3, 5.0);
+              const detachedRail = new THREE.Mesh(detachedRailGeo, metalGuardrailMaterial);
+              warpGroup.add(detachedRail);
+
+              // Position higher and tilted
+              const outward = sideIndex === 0 ? -1 : 1;
+              warpGroup.position.set(xSide + outward * 1.5, 3.5 + Math.random() * 2.0, zLocal);
+              warpGroup.rotation.x = Math.random() * 0.5 - 0.25;
+              warpGroup.rotation.z = outward * (0.45 + Math.random() * 0.35);
+
+              warpGroup.userData = {
+                baseY: warpGroup.position.y,
+                baseRotZ: warpGroup.rotation.z,
+                floatPhase: Math.random() * Math.PI * 2,
+                outward: outward
+              };
+
+              this.group.add(warpGroup);
+              this.guardrailObjects.push(warpGroup);
+            }
+          }
+        });
+      }
+
+      updatePosition(newZ) {
+        this.zPos = newZ;
+        this.group.position.z = newZ;
+      }
+
+      updateAntigravityWarp(guardrailLift, time) {
+        for (let i = 0; i < this.guardrailObjects.length; i++) {
+          const g = this.guardrailObjects[i];
+          const u = g.userData;
+          // When Phase 2 begins or guardrails lift, they float much higher and flutter
+          const liftBonus = guardrailLift * 5.0;
+          g.position.y = u.baseY + liftBonus + Math.sin(time * 2.0 + u.floatPhase) * (0.3 + guardrailLift * 0.8);
+          g.rotation.z = u.baseRotZ + (guardrailLift * 0.4 * u.outward);
+        }
+      }
+    }
+
+    // Initialize chunks
+    for (let i = 0; i < NUM_CHUNKS; i++) {
+      const zPos = -(i * CHUNK_LENGTH) + 40.0;
+      roadChunks.push(new RoadChunk(zPos));
+    }
+
+    // --- FLOATING DUST / ASH PARTICLES SYSTEM ---
+    const PARTICLE_COUNT = 1000;
+    const particleGeo = new THREE.BufferGeometry();
+    const particlePositions = new Float32Array(PARTICLE_COUNT * 3);
+    const particleVelocities = new Float32Array(PARTICLE_COUNT * 3);
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const i3 = i * 3;
+      particlePositions[i3] = (Math.random() - 0.5) * 50;     // X: -25 to +25
+      particlePositions[i3 + 1] = Math.random() * 22;         // Y: 0 to 22 (floating above road)
+      particlePositions[i3 + 2] = -Math.random() * 280 + 30;  // Z: along Route 9
+
+      particleVelocities[i3] = (Math.random() - 0.5) * 0.4;
+      particleVelocities[i3 + 1] = Math.random() * 0.6 + 0.3; // Upward negative-gravity drift
+      particleVelocities[i3 + 2] = (Math.random() - 0.5) * 0.4;
+    }
+
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    const particleMat = new THREE.PointsMaterial({
+      size: 0.45,
+      map: particleTex,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      color: 0xff9977
+    });
+    const dustParticles = new THREE.Points(particleGeo, particleMat);
+    scene.add(dustParticles);
+
+    // --- PROCEDURAL ROADSIDE CREATURES (30+ ENTITIES) ---
+    const creatures = [];
+    const NUM_CREATURES = 36;
+
+    // Shared Materials for Creatures
+    const obsidianMat = new THREE.MeshStandardMaterial({
+      color: 0x0c0c12,
+      roughness: 0.12,
+      metalness: 0.95
+    });
+
+    const shardMat = new THREE.MeshStandardMaterial({
+      color: 0x14101e,
+      roughness: 0.1,
+      metalness: 0.9,
+      wireframe: false
+    });
+
+    const drifterBubbleMat = new THREE.MeshPhysicalMaterial({
+      color: 0x221535,
+      roughness: 0.05,
+      transmission: 0.85,
+      thickness: 1.2,
+      opacity: 0.85,
+      transparent: true,
+      metalness: 0.1
+    });
+
+    // Dynamic emissive materials that shift with harmonic phases
+    const creatureEmissiveMat = new THREE.MeshStandardMaterial({
+      color: 0x00f0ff,
+      emissive: 0x00f0ff,
+      emissiveIntensity: 1.8,
+      roughness: 0.2
+    });
+
+    // 1. Archetype: The Spindles (Tall slender obsidian arachnid/pendulum figures)
+    function createSpindleMesh() {
+      const group = new THREE.Group();
+
+      // Slender central torso spire
+      const spireGeo = new THREE.ConeGeometry(0.35, 7.5, 6);
+      const spire = new THREE.Mesh(spireGeo, obsidianMat);
+      spire.position.y = 4.2;
+      group.add(spire);
+
+      // Inverted bottom needle
+      const bottomNeedle = new THREE.ConeGeometry(0.25, 3.5, 6);
+      bottomNeedle.rotateX(Math.PI);
+      const bMesh = new THREE.Mesh(bottomNeedle, obsidianMat);
+      bMesh.position.y = 1.0;
+      group.add(bMesh);
+
+      // Glowing central ocular core
+      const coreGeo = new THREE.SphereGeometry(0.3, 16, 16);
+      const core = new THREE.Mesh(coreGeo, creatureEmissiveMat);
+      core.position.y = 3.6;
+      group.add(core);
+
+      // 6 articulated jointed limbs
+      const limbs = [];
+      const numLimbs = 6;
+      for (let i = 0; i < numLimbs; i++) {
+        const limbRoot = new THREE.Group();
+        limbRoot.position.set(0, 3.2, 0);
+
+        const angle = (i / numLimbs) * Math.PI * 2;
+        limbRoot.rotation.y = angle;
+
+        // Upper limb
+        const upperLimbGeo = new THREE.CylinderGeometry(0.06, 0.04, 2.8, 6);
+        const upperLimb = new THREE.Mesh(upperLimbGeo, obsidianMat);
+        upperLimb.position.set(0, 1.2, 0.8);
+        upperLimb.rotation.x = 0.8;
+        limbRoot.add(upperLimb);
+
+        // Knee joint
+        const kneeGeo = new THREE.SphereGeometry(0.09, 8, 8);
+        const knee = new THREE.Mesh(kneeGeo, creatureEmissiveMat);
+        knee.position.set(0, 2.2, 1.5);
+        limbRoot.add(knee);
+
+        // Lower limb extending to ground
+        const lowerLimbGeo = new THREE.CylinderGeometry(0.04, 0.015, 3.6, 6);
+        const lowerLimb = new THREE.Mesh(lowerLimbGeo, obsidianMat);
+        lowerLimb.position.set(0, 0.6, 2.4);
+        lowerLimb.rotation.x = -0.65;
+        limbRoot.add(lowerLimb);
+
+        group.add(limbRoot);
+        limbs.push(limbRoot);
+      }
+
+      group.userData = {
+        type: 'spindle',
+        limbs: limbs,
+        core: core,
+        animCycle: Math.random() * Math.PI * 2,
+        baseY: 0.0,
+        heightScale: Math.random() * 0.4 + 0.85
+      };
+
+      group.scale.set(group.userData.heightScale, group.userData.heightScale, group.userData.heightScale);
+      return group;
+    }
+
+    // 2. Archetype: The Drifters (Bulbous floating spheres with orbiting geometric rings)
+    function createDrifterMesh() {
+      const group = new THREE.Group();
+
+      // Outer translucent sphere
+      const outerGeo = new THREE.SphereGeometry(1.6, 24, 24);
+      const outerMesh = new THREE.Mesh(outerGeo, drifterBubbleMat);
+      outerMesh.position.y = 3.5;
+      group.add(outerMesh);
+
+      // Inner pulsating glowing core
+      const innerGeo = new THREE.SphereGeometry(0.7, 16, 16);
+      const innerMesh = new THREE.Mesh(innerGeo, creatureEmissiveMat);
+      innerMesh.position.y = 3.5;
+      group.add(innerMesh);
+
+      // Orbiting geometric rings
+      const rings = [];
+      const ringGeos = [
+        new THREE.TorusGeometry(2.4, 0.05, 8, 32),
+        new THREE.TorusGeometry(2.0, 0.04, 8, 32),
+        new THREE.TorusGeometry(1.5, 0.03, 8, 32)
+      ];
+
+      ringGeos.forEach((geo, idx) => {
+        const ring = new THREE.Mesh(geo, obsidianMat);
+        ring.position.y = 3.5;
+        ring.rotation.x = idx * 0.6;
+        ring.rotation.y = idx * 0.8;
+        group.add(ring);
+        rings.push(ring);
+      });
+
+      // Orbiting satellites
+      const satellites = [];
+      for (let s = 0; s < 4; s++) {
+        const satGeo = new THREE.OctahedronGeometry(0.18);
+        const sat = new THREE.Mesh(satGeo, creatureEmissiveMat);
+        group.add(sat);
+        satellites.push(sat);
+      }
+
+      group.userData = {
+        type: 'drifter',
+        rings: rings,
+        satellites: satellites,
+        innerCore: innerMesh,
+        animCycle: Math.random() * Math.PI * 2,
+        baseY: 2.5 + Math.random() * 3.0
+      };
+
+      return group;
+    }
+
+    // 3. Archetype: The Shards (Jagged monolithic clusters tilting and fracturing)
+    function createShardClusterMesh() {
+      const group = new THREE.Group();
+
+      const shards = [];
+      const numShards = 8;
+      for (let i = 0; i < numShards; i++) {
+        const height = Math.random() * 2.8 + 2.0;
+        const shardGeo = new THREE.ConeGeometry(0.4, height, 4);
+        shardGeo.scale(0.3, 1.0, 1.0); // razor thin
+        const shard = new THREE.Mesh(shardGeo, shardMat);
+
+        const angle = (i / numShards) * Math.PI * 2;
+        const radius = 1.2;
+        shard.position.set(Math.cos(angle) * radius, height / 2 + Math.random() * 1.5, Math.sin(angle) * radius);
+        shard.rotation.set((Math.random() - 0.5) * 0.6, angle, (Math.random() - 0.5) * 0.6);
+
+        // Core light tip
+        const tipGeo = new THREE.TetrahedronGeometry(0.12);
+        const tip = new THREE.Mesh(tipGeo, creatureEmissiveMat);
+        tip.position.y = height / 2;
+        shard.add(tip);
+
+        group.add(shard);
+        shards.push({
+          mesh: shard,
+          origX: shard.position.x,
+          origZ: shard.position.z,
+          origRotY: shard.rotation.y
+        });
+      }
+
+      group.userData = {
+        type: 'shard',
+        shards: shards,
+        animCycle: Math.random() * Math.PI * 2,
+        baseY: 1.0 + Math.random() * 2.5
+      };
+
+      return group;
+    }
+
+    // Spawn 36 creatures distributed along the highway
+    for (let i = 0; i < NUM_CREATURES; i++) {
+      let creatureMesh;
+      const typeIndex = i % 3;
+      if (typeIndex === 0) creatureMesh = createSpindleMesh();
+      else if (typeIndex === 1) creatureMesh = createDrifterMesh();
+      else creatureMesh = createShardClusterMesh();
+
+      // Position along shoulders: Left (X: -10 to -24) or Right (X: 10 to 24)
+      const side = (i % 2 === 0) ? -1 : 1;
+      const xPos = side * (Math.random() * 12 + 10);
+      const zPos = -(i * 10) - Math.random() * 20;
+
+      creatureMesh.position.set(xPos, creatureMesh.userData.baseY, zPos);
+      creatureMesh.userData.origX = xPos;
+      scene.add(creatureMesh);
+      creatures.push(creatureMesh);
+    }
+
+    // --- MASSIVE CLIMAX GEOMETRIC PORTAL ---
+    const portalGroup = new THREE.Group();
+    portalGroup.position.set(0, 8, -120);
+    portalGroup.visible = false;
+    scene.add(portalGroup);
+
+    // 1. Outer rotating geometric ring
+    const outerRingGeo = new THREE.TorusGeometry(14, 0.6, 8, 8); // Octagonal stargate
+    const outerPortalRing = new THREE.Mesh(outerRingGeo, obsidianMat);
+    portalGroup.add(outerPortalRing);
+
+    // 2. Middle counter-rotating ring
+    const midRingGeo = new THREE.TorusGeometry(10, 0.45, 6, 6); // Hexagonal ring
+    const midPortalRing = new THREE.Mesh(midRingGeo, creatureEmissiveMat);
+    portalGroup.add(midPortalRing);
+
+    // 3. Inner tesseract spinning ring
+    const innerRingGeo = new THREE.TorusGeometry(7, 0.35, 4, 32);
+    const innerPortalRing = new THREE.Mesh(innerRingGeo, obsidianMat);
+    portalGroup.add(innerPortalRing);
+
+    // 4. Swirling event horizon vortex disc
+    const vortexTex = createPortalVortexTexture();
+    const vortexGeo = new THREE.CircleGeometry(6.8, 32);
+    const vortexMat = new THREE.MeshBasicMaterial({
+      map: vortexTex,
+      transparent: true,
+      opacity: 0.92,
+      side: THREE.DoubleSide
+    });
+    const vortexDisc = new THREE.Mesh(vortexGeo, vortexMat);
+    portalGroup.add(vortexDisc);
+
+    // 5. Floating debris being pulled into portal
+    const debrisGroup = new THREE.Group();
+    portalGroup.add(debrisGroup);
+    const debrisMeshes = [];
+    for (let d = 0; d < 30; d++) {
+      const dGeo = new THREE.BoxGeometry(
+        Math.random() * 1.5 + 0.4,
+        Math.random() * 0.4 + 0.2,
+        Math.random() * 1.5 + 0.4
+      );
+      const dMesh = new THREE.Mesh(dGeo, metalGuardrailMaterial);
+      debrisGroup.add(dMesh);
+      debrisMeshes.push({
+        mesh: dMesh,
+        angle: Math.random() * Math.PI * 2,
+        dist: Math.random() * 18 + 7,
+        speed: Math.random() * 1.5 + 0.5,
+        rotSpeed: Math.random() * 2 + 1,
+        yOffset: (Math.random() - 0.5) * 8
+      });
+    }
+
+    // --- PROCEDURAL WEB AUDIO SYNTHESIZER ---
+    let audioCtx = null;
+    let masterGain = null;
+    let droneGain = null;
+    let droneFilter = null;
+    let droneOsc1 = null;
+    let droneOsc2 = null;
+    let droneLfo = null;
+    let chimeGain = null;
+    let chimeOscs = [];
+    let portalAmbienceGain = null;
+
+    function initWebAudio() {
+      if (STATE.audioInitialized) return;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+
+        // Master output
+        masterGain = audioCtx.createGain();
+        masterGain.gain.setValueAtTime(0.75, audioCtx.currentTime);
+        masterGain.connect(audioCtx.destination);
+
+        // --- 1. AMBIENT TWILIGHT DRONE ---
+        // Detuned dual oscillators (A1 ~ 55Hz)
+        droneOsc1 = audioCtx.createOscillator();
+        droneOsc2 = audioCtx.createOscillator();
+        droneOsc1.type = 'sawtooth';
+        droneOsc2.type = 'triangle';
+        droneOsc1.frequency.setValueAtTime(55.0, audioCtx.currentTime);
+        droneOsc2.frequency.setValueAtTime(55.8, audioCtx.currentTime); // 0.8 Hz binaural beating
+
+        droneFilter = audioCtx.createBiquadFilter();
+        droneFilter.type = 'lowpass';
+        droneFilter.frequency.setValueAtTime(140, audioCtx.currentTime);
+        droneFilter.Q.setValueAtTime(3.5, audioCtx.currentTime);
+
+        droneGain = audioCtx.createGain();
+        droneGain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+
+        // LFO Tremolo
+        droneLfo = audioCtx.createOscillator();
+        const droneLfoGain = audioCtx.createGain();
+        droneLfo.frequency.setValueAtTime(1.5, audioCtx.currentTime);
+        droneLfoGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        droneLfo.connect(droneLfoGain);
+        droneLfoGain.connect(droneGain.gain);
+
+        droneOsc1.connect(droneFilter);
+        droneOsc2.connect(droneFilter);
+        droneFilter.connect(droneGain);
+        droneGain.connect(masterGain);
+
+        droneOsc1.start();
+        droneOsc2.start();
+        droneLfo.start();
+
+        // --- 2. HARMONIC FM CHIME SYNTH ---
+        chimeGain = audioCtx.createGain();
+        chimeGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        chimeGain.connect(masterGain);
+
+        // 4 Chord Voice Oscillators
+        const chordFreqs = [293.66, 349.23, 440.0, 523.25]; // D minor 9
+        for (let i = 0; i < 4; i++) {
+          const osc = audioCtx.createOscillator();
+          const subGain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(chordFreqs[i], audioCtx.currentTime);
+          subGain.gain.setValueAtTime(0.22, audioCtx.currentTime);
+
+          // FM Modulator for crystalline shimmer
+          const modOsc = audioCtx.createOscillator();
+          const modGain = audioCtx.createGain();
+          modOsc.type = 'triangle';
+          modOsc.frequency.setValueAtTime(chordFreqs[i] * 2.01, audioCtx.currentTime);
+          modGain.gain.setValueAtTime(15.0, audioCtx.currentTime);
+          modOsc.connect(modGain);
+          modGain.connect(osc.frequency);
+
+          osc.connect(subGain);
+          subGain.connect(chimeGain);
+
+          osc.start();
+          modOsc.start();
+          chimeOscs.push({ osc: osc, modOsc: modOsc, baseFreq: chordFreqs[i] });
+        }
+
+        STATE.audioInitialized = true;
+      } catch (e) {
+        console.warn('Web Audio initialization error:', e);
+      }
+    }
+
+    // Update Web Audio dynamically based on player speed and resonance
+    function updateWebAudio(dt) {
+      if (!audioCtx || audioCtx.state !== 'running') return;
+      const now = audioCtx.currentTime;
+
+      // 1. Modulate ambient drone lowpass cutoff with player speed (120Hz to 1800Hz)
+      const speedNorm = Math.min(1.0, STATE.playerSpeed / 12.0);
+      const targetCutoff = 120 + Math.pow(speedNorm, 1.35) * 1680;
+      droneFilter.frequency.setTargetAtTime(targetCutoff, now, 0.08);
+
+      // Tremolo speed increases with movement
+      droneLfo.frequency.setTargetAtTime(1.5 + speedNorm * 7.5, now, 0.1);
+
+      // 2. Harmonic Chime swell when in target speed zone
+      const targetChimeVol = STATE.inTargetZone ? 0.05 + (STATE.phaseTimer / 4.0) * 0.38 : 0.0001;
+      chimeGain.gain.setTargetAtTime(targetChimeVol, now, 0.12);
+
+      // Update harmonic chord frequencies based on phase
+      let targetChord;
+      if (STATE.phase === 1) targetChord = [293.66, 349.23, 440.0, 523.25]; // Dm9 (Cyan)
+      else if (STATE.phase === 2) targetChord = [369.99, 440.0, 554.37, 659.25]; // F#m7 (Magenta)
+      else targetChord = [220.0, 329.63, 440.0, 554.37]; // Amaj (Gold)
+
+      for (let i = 0; i < chimeOscs.length; i++) {
+        chimeOscs[i].osc.frequency.setTargetAtTime(targetChord[i], now, 0.15);
+        chimeOscs[i].modOsc.frequency.setTargetAtTime(targetChord[i] * 2.01, now, 0.15);
+      }
+    }
+
+    // Procedural Footstep Synth (Filtered White Noise Burst)
+    function playProceduralFootstep() {
+      if (!audioCtx || audioCtx.state !== 'running' || STATE.audioMuted) return;
+      const now = audioCtx.currentTime;
+
+      // 0.06s white noise buffer
+      const bufferSize = Math.floor(audioCtx.sampleRate * 0.06);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.22));
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const bandpass = audioCtx.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.frequency.setValueAtTime(320 + Math.random() * 120, now);
+      bandpass.Q.setValueAtTime(2.2, now);
+
+      const footGain = audioCtx.createGain();
+      const vol = 0.08 + (STATE.playerSpeed / 12.0) * 0.14;
+      footGain.gain.setValueAtTime(vol, now);
+      footGain.gain.exponentialRampToValueAtTime(0.001, now + 0.058);
+
+      noise.connect(bandpass);
+      bandpass.connect(footGain);
+      footGain.connect(masterGain);
+
+      noise.start(now);
+    }
+
+    // Climax Sub-Bass Drop & Ethereal Choir Pad
+    function triggerClimaxAudio() {
+      if (!audioCtx || audioCtx.state !== 'running') return;
+      const now = audioCtx.currentTime;
+
+      // Massive 28Hz Sub-Bass Drop
+      const subOsc = audioCtx.createOscillator();
+      const subGain = audioCtx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(130, now);
+      subOsc.frequency.exponentialRampToValueAtTime(28, now + 2.5);
+
+      subGain.gain.setValueAtTime(0.7, now);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 4.0);
+
+      subOsc.connect(subGain);
+      subGain.connect(masterGain);
+      subOsc.start(now);
+      subOsc.stop(now + 4.1);
+
+      // Ethereal Choir Pad (5 detuned sines with chorus effect)
+      const choirNotes = [220.0, 277.18, 329.63, 440.0, 554.37];
+      choirNotes.forEach((freq, idx) => {
+        const cOsc = audioCtx.createOscillator();
+        const cGain = audioCtx.createGain();
+        cOsc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+        cOsc.frequency.setValueAtTime(freq + (Math.random() - 0.5) * 2.0, now);
+
+        cGain.gain.setValueAtTime(0.001, now);
+        cGain.gain.linearRampToValueAtTime(0.12, now + 1.2);
+        cGain.gain.exponentialRampToValueAtTime(0.001, now + 8.0);
+
+        cOsc.connect(cGain);
+        cGain.connect(masterGain);
+        cOsc.start(now);
+        cOsc.stop(now + 8.1);
+      });
+    }
+
+    function playPhaseSuccessChime() {
+      if (!audioCtx || audioCtx.state !== 'running') return;
+      const now = audioCtx.currentTime;
+      const chime = audioCtx.createOscillator();
+      const cGain = audioCtx.createGain();
+      chime.type = 'sine';
+      chime.frequency.setValueAtTime(880, now);
+      chime.frequency.exponentialRampToValueAtTime(1760, now + 0.4);
+
+      cGain.gain.setValueAtTime(0.3, now);
+      cGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+
+      chime.connect(cGain);
+      cGain.connect(masterGain);
+      chime.start(now);
+      chime.stop(now + 0.95);
+    }
+
+    // --- INPUT HANDLING ---
+    const keys = {};
+
+    window.addEventListener('keydown', (e) => {
+      keys[e.code] = true;
+
+      // Spacebar: Emergency brake
+      if (e.code === 'Space') {
+        e.preventDefault();
+        STATE.targetSpeed = 0.0;
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      keys[e.code] = false;
+    });
+
+    // Mouse Wheel fine throttle tuning
+    window.addEventListener('wheel', (e) => {
+      if (e.deltaY < 0) {
+        STATE.targetSpeed = Math.min(STATE.maxSpeed, STATE.targetSpeed + 0.5);
+      } else {
+        STATE.targetSpeed = Math.max(0.0, STATE.targetSpeed - 0.5);
+      }
+    }, { passive: true });
+
+    // Mouse Parallax & Look
+    window.addEventListener('mousedown', (e) => {
+      if (e.target.closest('#hud') && !e.target.closest('#webgl-canvas')) return;
+      STATE.isMouseDown = true;
+      STATE.prevMouseX = e.clientX;
+      STATE.prevMouseY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => {
+      STATE.isMouseDown = false;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      // Smooth subtle parallax even when not dragging
+      const normX = (e.clientX / window.innerWidth - 0.5) * 2;
+      const normY = (e.clientY / window.innerHeight - 0.5) * 2;
+
+      if (STATE.isMouseDown) {
+        const deltaX = e.clientX - STATE.prevMouseX;
+        const deltaY = e.clientY - STATE.prevMouseY;
+        STATE.prevMouseX = e.clientX;
+        STATE.prevMouseY = e.clientY;
+
+        STATE.targetYaw -= deltaX * 0.0035;
+        STATE.targetPitch -= deltaY * 0.003;
+        // Clamp pitch to avoid neck snapping
+        STATE.targetPitch = Math.max(-0.45, Math.min(0.65, STATE.targetPitch));
+        // Clamp yaw so player stays focused on Route 9
+        STATE.targetYaw = Math.max(-1.1, Math.min(1.1, STATE.targetYaw));
+      } else {
+        // Ambient subtle hover parallax
+        STATE.targetYaw = -normX * 0.25;
+        STATE.targetPitch = -normY * 0.15;
+      }
+    });
+
+    // Touch Support for mobile look
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1 && !e.target.closest('.throttle-container')) {
+        STATE.isMouseDown = true;
+        STATE.prevMouseX = e.touches[0].clientX;
+        STATE.prevMouseY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (STATE.isMouseDown && e.touches.length === 1 && !e.target.closest('.throttle-container')) {
+        const deltaX = e.touches[0].clientX - STATE.prevMouseX;
+        const deltaY = e.touches[0].clientY - STATE.prevMouseY;
+        STATE.prevMouseX = e.touches[0].clientX;
+        STATE.prevMouseY = e.touches[0].clientY;
+
+        STATE.targetYaw -= deltaX * 0.004;
+        STATE.targetPitch -= deltaY * 0.0035;
+        STATE.targetPitch = Math.max(-0.45, Math.min(0.65, STATE.targetPitch));
+        STATE.targetYaw = Math.max(-1.1, Math.min(1.1, STATE.targetYaw));
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      STATE.isMouseDown = false;
+    });
+
+    // --- INTERACTIVE VERTICAL THROTTLE SLIDER ---
+    const throttleTrack = document.getElementById('throttle-track');
+    const throttleFill = document.getElementById('throttle-fill');
+    const throttleThumb = document.getElementById('throttle-thumb');
+    let isDraggingThrottle = false;
+
+    function updateThrottleFromY(clientY) {
+      const rect = throttleTrack.getBoundingClientRect();
+      const trackHeight = rect.height;
+      const offsetY = THREE.MathUtils.clamp(rect.bottom - clientY, 0, trackHeight);
+      const ratio = offsetY / trackHeight;
+      STATE.targetSpeed = ratio * STATE.maxSpeed;
+    }
+
+    throttleTrack.addEventListener('mousedown', (e) => {
+      isDraggingThrottle = true;
+      updateThrottleFromY(e.clientY);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDraggingThrottle) {
+        updateThrottleFromY(e.clientY);
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDraggingThrottle = false;
+    });
+
+    throttleTrack.addEventListener('touchstart', (e) => {
+      isDraggingThrottle = true;
+      updateThrottleFromY(e.touches[0].clientY);
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isDraggingThrottle && e.touches.length > 0) {
+        updateThrottleFromY(e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      isDraggingThrottle = false;
+    });
+
+    // --- UI ELEMENTS ---
+    const elSpeedVal = document.getElementById('speed-value');
+    const elTargetTag = document.getElementById('target-tag');
+    const elTachFill = document.getElementById('tachometer-fill');
+    const elTachTarget = document.getElementById('tachometer-target');
+    const elPhaseTitle = document.getElementById('phase-title');
+    const elPhaseName = document.getElementById('phase-name');
+    const elProgressBar = document.getElementById('progress-bar');
+    const elProgressPercent = document.getElementById('progress-percent');
+    const elTargetSpec = document.getElementById('target-spec');
+    const elNarrative = document.getElementById('narrative-prompt');
+    const elPhaseCard = document.getElementById('phase-card');
+    const elPulseFx = document.getElementById('pulse-fx');
+    const elThrottleTargetZone = document.getElementById('throttle-target-zone');
+    const elBtnAudio = document.getElementById('btn-audio');
+    const elBtnFullscreen = document.getElementById('btn-fullscreen');
+    const startOverlay = document.getElementById('start-overlay');
+    const victoryOverlay = document.getElementById('victory-overlay');
+    const btnStart = document.getElementById('btn-start');
+    const btnPortal = document.getElementById('btn-portal');
+
+    // UI Audio & Fullscreen Buttons
+    elBtnAudio.addEventListener('click', () => {
+      if (!audioCtx) initWebAudio();
+      STATE.audioMuted = !STATE.audioMuted;
+      if (masterGain) {
+        masterGain.gain.setValueAtTime(STATE.audioMuted ? 0.0 : 0.75, audioCtx.currentTime);
+      }
+      elBtnAudio.textContent = STATE.audioMuted ? 'AUDIO: OFF' : 'AUDIO: ON';
+    });
+
+    elBtnFullscreen.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    // Start Button
+    btnStart.addEventListener('click', () => {
+      initWebAudio();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      startOverlay.classList.add('hidden');
+    });
+
+    // Victory Singularity Warp
+    btnPortal.addEventListener('click', () => {
+      victoryOverlay.classList.add('hidden');
+      STATE.warpMode = true;
+      STATE.maxSpeed = 28.0;
+      STATE.targetSpeed = 28.0;
+      elNarrative.textContent = "WARP SINGULARITY ENGAGED. TRANSCENDING ROUTE 9...";
+      triggerClimaxAudio();
+    });
+
+    // --- NEUROCOMPUTATIONAL AGENT ENGINE & EEG MONITOR ---
+    const EEG_CONSTANTS = {
+      HC_ATTEN_UV: 2.213,
+      SZ_ATTEN_UV: 0.884,
+      SZ_DEFICIT_RATIO: 0.399 // SZ is 39.9% of HC
+    };
+
+    // Load pre-trained policy
+    fetch('game_agent_policy.json')
+      .then(res => res.json())
+      .then(data => {
+        console.log('[NeuroAgent] Pretrained policy successfully loaded:', data.metadata);
+        if (data.q_tables) STATE.loadedQTables = data.q_tables;
+      })
+      .catch(err => console.log('[NeuroAgent] Running with embedded online neuro-policy'));
+
+    // Realtime EEG Canvas Oscilloscope
+    const eegCanvas = document.getElementById('eeg-canvas');
+    const eegCtx = eegCanvas ? eegCanvas.getContext('2d') : null;
+    let eegScanX = 0;
+
+    function drawEEGWaveform(currentTime) {
+      if (!eegCtx) return;
+      const w = eegCanvas.width;
+      const h = eegCanvas.height;
+      const midY = h * 0.45;
+
+      // Trail fade
+      eegCtx.fillStyle = 'rgba(7, 3, 14, 0.22)';
+      eegCtx.fillRect(0, 0, w, h);
+
+      // Grid lines
+      eegCtx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      eegCtx.lineWidth = 1;
+      eegCtx.beginPath();
+      eegCtx.moveTo(0, midY); eegCtx.lineTo(w, midY);
+      eegCtx.stroke();
+
+      // Sweep marker
+      eegScanX = (eegScanX + 3.2) % w;
+      eegCtx.fillStyle = 'rgba(0, 240, 255, 0.15)';
+      eegCtx.fillRect(eegScanX, 0, 4, h);
+
+      const isSZ = STATE.agentMode === 'sz';
+      const isHC = STATE.agentMode === 'hc';
+      const isTrain = STATE.agentMode === 'train';
+
+      // Draw passive auditory tone baseline (grey dashed wave)
+      eegCtx.beginPath();
+      eegCtx.strokeStyle = 'rgba(180, 180, 180, 0.45)';
+      eegCtx.lineWidth = 1.2;
+      eegCtx.setLineDash([3, 3]);
+      for (let x = 0; x < w; x += 4) {
+        const t = (x / w) * 400 - 100;
+        let amp = 0;
+        if (t >= 0 && t <= 60) amp = Math.sin((t / 60) * Math.PI) * 12;
+        else if (t > 60 && t <= 140) amp = -Math.sin(((t - 60) / 80) * Math.PI) * 25;
+        else if (t > 140 && t <= 250) amp = Math.sin(((t - 140) / 110) * Math.PI) * 15;
+        const y = midY - amp;
+        if (x === 0) eegCtx.moveTo(x, y); else eegCtx.lineTo(x, y);
+      }
+      eegCtx.stroke();
+      eegCtx.setLineDash([]);
+
+      // Draw Active Motor Tone Waveform (Colored by Agent Mode)
+      eegCtx.beginPath();
+      if (isSZ) {
+        eegCtx.strokeStyle = '#ff007f'; // Magenta for Schizophrenia (shallow suppression)
+        eegCtx.lineWidth = 2.0;
+        eegCtx.shadowColor = '#ff007f';
+        eegCtx.shadowBlur = 8;
+      } else if (isHC) {
+        eegCtx.strokeStyle = '#00f0ff'; // Cyan for Healthy Control (deep sensory attenuation)
+        eegCtx.lineWidth = 2.0;
+        eegCtx.shadowColor = '#00f0ff';
+        eegCtx.shadowBlur = 8;
+      } else if (isTrain) {
+        eegCtx.strokeStyle = '#ffd700'; // Gold for training
+        eegCtx.lineWidth = 2.0;
+        eegCtx.shadowColor = '#ffd700';
+        eegCtx.shadowBlur = 8;
+      } else {
+        eegCtx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        eegCtx.lineWidth = 1.4;
+        eegCtx.shadowBlur = 0;
+      }
+
+      // Attenuation trough depth:
+      // Passive = -25px
+      // HC active suppression = -8px (deep ~68% reduction, normal corollary discharge)
+      // SZ active suppression = -19px (shallow ~24% reduction, sensory attenuation deficit)
+      const n100Peak = isSZ ? -19 : (isHC ? -8 : (isTrain ? -12 : -10));
+      const jitterNoise = isSZ ? Math.sin(currentTime * 0.02) * 3.5 : 0.0;
+
+      for (let x = 0; x < w; x += 4) {
+        const t = (x / w) * 400 - 100;
+        let amp = 0;
+        if (t >= 0 && t <= 60) amp = Math.sin((t / 60) * Math.PI) * 10;
+        else if (t > 60 && t <= 140) amp = -Math.sin(((t - 60) / 80) * Math.PI) * Math.abs(n100Peak) + jitterNoise;
+        else if (t > 140 && t <= 250) amp = Math.sin(((t - 140) / 110) * Math.PI) * 12;
+        const y = midY - amp;
+        if (x === 0) eegCtx.moveTo(x, y); else eegCtx.lineTo(x, y);
+      }
+      eegCtx.stroke();
+      eegCtx.shadowBlur = 0;
+    }
+
+    // UI Element bindings for Neuro-Agent Telemetry
+    const elBadge = document.getElementById('neuro-agent-badge');
+    const elCdError = document.getElementById('m-cd-error');
+    const elSensoryAtten = document.getElementById('m-sensory-atten');
+    const elPolicyAct = document.getElementById('m-policy-act');
+    const elGroundingStatus = document.getElementById('m-grounding-status');
+    const elRlEpisodes = document.getElementById('m-rl-episodes');
+    const elRlReward = document.getElementById('m-rl-reward');
+    const elEegAttenVal = document.getElementById('eeg-attenuation-val');
+
+    const btnManual = document.getElementById('btn-mode-manual');
+    const btnSZ = document.getElementById('btn-mode-sz');
+    const btnHC = document.getElementById('btn-mode-hc');
+    const btnTrain = document.getElementById('btn-mode-train');
+
+    function setAgentMode(mode) {
+      STATE.agentMode = mode;
+      [btnManual, btnSZ, btnHC, btnTrain].forEach(b => b.classList.remove('active-agent'));
+
+      if (mode === 'manual') {
+        btnManual.classList.add('active-agent');
+        elBadge.className = 'neuro-badge badge-manual';
+        elBadge.textContent = 'MANUAL DRIVE';
+        elSensoryAtten.textContent = '100.0% (NORMAL)';
+        elEegAttenVal.textContent = 'ATTEN: 2.21 µV';
+        elGroundingStatus.textContent = 'STANDBY';
+        elPolicyAct.textContent = 'PLAYER INPUT';
+      } else if (mode === 'sz') {
+        btnSZ.classList.add('active-agent');
+        elBadge.className = 'neuro-badge badge-sz';
+        elBadge.textContent = 'SZ NEURO-AGENT';
+        elSensoryAtten.textContent = '39.9% (DEFICIT)';
+        elEegAttenVal.textContent = 'SZ ATTEN: 0.88 µV';
+        elGroundingStatus.textContent = 'ENGAGED (COMPENSATING)';
+        startOverlay.classList.add('hidden');
+        if (!audioCtx) initWebAudio();
+      } else if (mode === 'hc') {
+        btnHC.classList.add('active-agent');
+        elBadge.className = 'neuro-badge badge-hc';
+        elBadge.textContent = 'HC BASELINE AGENT';
+        elSensoryAtten.textContent = '100.0% (NORMAL)';
+        elEegAttenVal.textContent = 'HC ATTEN: 2.21 µV';
+        elGroundingStatus.textContent = 'OPTIMAL (FORWARD LOCK)';
+        startOverlay.classList.add('hidden');
+        if (!audioCtx) initWebAudio();
+      } else if (mode === 'train') {
+        btnTrain.classList.add('active-agent');
+        elBadge.className = 'neuro-badge badge-train';
+        elBadge.textContent = 'LIVE RL TRAINING';
+        elSensoryAtten.textContent = 'ADAPTIVE';
+        elEegAttenVal.textContent = 'RL OPTIMIZING';
+        elGroundingStatus.textContent = 'REINFORCING (BELLMAN)';
+        startOverlay.classList.add('hidden');
+        if (!audioCtx) initWebAudio();
+      }
+    }
+
+    btnManual.addEventListener('click', () => setAgentMode('manual'));
+    btnSZ.addEventListener('click', () => setAgentMode('sz'));
+    btnHC.addEventListener('click', () => setAgentMode('hc'));
+    btnTrain.addEventListener('click', () => setAgentMode('train'));
+
+    // Embedded Q-Learning Agent for in-browser execution & live training
+    const clientQTable = {};
+    function getQValues(phase, speedBucket) {
+      const key = `${phase}_${speedBucket}`;
+      if (!clientQTable[key]) clientQTable[key] = [0.0, 0.0, 0.0, 0.0, 0.0];
+      return clientQTable[key];
+    }
+
+    let agentStepTimer = 0.0;
+    let agentEpisodeSteps = 0;
+
+    function minPhase(p) { return Math.min(3, Math.max(1, p)); }
+
+    function updateNeuroAgent(dt, currentTime) {
+      agentStepTimer += dt;
+      agentEpisodeSteps++;
+
+      const activePhase = minPhase(STATE.phase);
+      const cfg = PHASES[activePhase];
+      const targetSpeed = cfg.target;
+      const tolerance = cfg.tolerance;
+
+      if (STATE.agentMode === 'hc') {
+        // Healthy Control: Intact corollary discharge (Sensory Attenuation = 2.213 uV)
+        STATE.agentCdError = Math.abs(STATE.playerSpeed - targetSpeed) * 0.12;
+        STATE.agentSensoryAtten = 2.213;
+
+        const error = targetSpeed - STATE.playerSpeed;
+        if (STATE.phase === 3) {
+          STATE.targetSpeed = 0.0;
+          STATE.agentPolicyAct = 'SPACEBAR BRAKE';
+        } else if (Math.abs(error) > 0.08) {
+          STATE.targetSpeed = THREE.MathUtils.lerp(STATE.targetSpeed, targetSpeed + error * 0.45, 8.0 * dt);
+          STATE.agentPolicyAct = error > 0 ? 'ACCEL (+0.45)' : 'DECEL (-0.45)';
+        } else {
+          STATE.targetSpeed = targetSpeed;
+          STATE.agentPolicyAct = 'HARMONIC LOCK';
+        }
+        STATE.agentIsSprinting = Math.abs(error) > 3.0;
+
+      } else if (STATE.agentMode === 'sz') {
+        // Schizophrenia Agent: Impaired Corollary Discharge & Sensory Attenuation Deficit (0.884 uV)
+        const sensoryNoise = (Math.sin(currentTime * 0.009) * 0.38 + Math.cos(currentTime * 0.015) * 0.22) * (1.0 - EEG_CONSTANTS.SZ_DEFICIT_RATIO);
+        const cdPredictionError = Math.abs(STATE.playerSpeed - targetSpeed) * 0.65 + Math.abs(sensoryNoise);
+        STATE.agentCdError = cdPredictionError;
+        STATE.agentSensoryAtten = 0.884;
+
+        const perceivedSpeed = STATE.playerSpeed + sensoryNoise * 0.75;
+        const perceivedError = targetSpeed - perceivedSpeed;
+
+        // Clinical Reality-Grounding Compensator
+        const groundingDamping = 0.88;
+        const stabilizedTarget = targetSpeed + (perceivedError * 0.42 * groundingDamping);
+
+        if (STATE.phase === 3) {
+          STATE.targetSpeed = 0.0;
+          STATE.agentPolicyAct = 'EMERGENCY BRAKE (0.0)';
+        } else if (Math.abs(STATE.playerSpeed - targetSpeed) <= tolerance * 0.85) {
+          STATE.targetSpeed = THREE.MathUtils.lerp(STATE.targetSpeed, targetSpeed, 4.0 * dt);
+          STATE.agentPolicyAct = 'GROUNDED RESONANCE';
+        } else {
+          STATE.targetSpeed = THREE.MathUtils.lerp(STATE.targetSpeed, Math.max(0, stabilizedTarget), 5.5 * dt);
+          STATE.agentPolicyAct = perceivedError > 0 ? 'HUNTING ACCEL' : 'HUNTING DECEL';
+        }
+        STATE.agentIsSprinting = Math.abs(perceivedError) > 3.5;
+
+      } else if (STATE.agentMode === 'train') {
+        // Live In-Browser Reinforcement Learning Q-Training Step
+        if (agentStepTimer >= 0.06) {
+          agentStepTimer = 0.0;
+          const speedBucket = Math.min(19, Math.max(0, Math.floor(STATE.playerSpeed / (STATE.maxSpeed / 20))));
+          const qVals = getQValues(STATE.phase, speedBucket);
+
+          let chosenAction = 0;
+          if (Math.random() < STATE.agentEpsilon) {
+            chosenAction = Math.floor(Math.random() * 5);
+          } else {
+            let bestQ = -Infinity;
+            for (let a = 0; a < 5; a++) {
+              let bonus = 0;
+              if (STATE.playerSpeed < targetSpeed - 0.3 && (a === 1 || a === 4)) bonus += 2.0;
+              if (STATE.playerSpeed > targetSpeed + 0.3 && (a === 2 || a === 3)) bonus += 2.0;
+              if (STATE.phase === 3 && a === 3) bonus += 5.0;
+              if (Math.abs(STATE.playerSpeed - targetSpeed) <= tolerance && a === 0) bonus += 3.0;
+
+              const val = qVals[a] + bonus;
+              if (val > bestQ) { bestQ = val; chosenAction = a; }
+            }
+          }
+
+          const actionNames = ['COAST', 'ACCEL (+0.45)', 'DECEL (-0.45)', 'BRAKE (0.0)', 'SPRINT BOOST'];
+          STATE.agentPolicyAct = actionNames[chosenAction];
+
+          if (chosenAction === 1) STATE.targetSpeed = Math.min(STATE.maxSpeed, STATE.targetSpeed + 0.45);
+          else if (chosenAction === 2) STATE.targetSpeed = Math.max(0.0, STATE.targetSpeed - 0.45);
+          else if (chosenAction === 3) STATE.targetSpeed = 0.0;
+          else if (chosenAction === 4) STATE.targetSpeed = Math.min(STATE.maxSpeed, STATE.targetSpeed + 1.2);
+
+          const inZone = Math.abs(STATE.playerSpeed - targetSpeed) <= tolerance;
+          let r = inZone ? 3.0 : -0.8;
+          if (STATE.phaseTimer >= 3.8) r += 50.0;
+          STATE.agentReward += r;
+
+          const nextSpeedBucket = Math.min(19, Math.max(0, Math.floor(STATE.playerSpeed / (STATE.maxSpeed / 20))));
+          const nextQVals = getQValues(STATE.phase, nextSpeedBucket);
+          const maxNextQ = Math.max(...nextQVals);
+          const lr = 0.2;
+          const gamma = 0.95;
+          qVals[chosenAction] += lr * (r + gamma * maxNextQ - qVals[chosenAction]);
+
+          if (STATE.agentEpsilon > 0.03) STATE.agentEpsilon *= 0.995;
+        }
+      }
+
+      // Update HUD telemetry values
+      elCdError.textContent = `Δ ${STATE.agentCdError.toFixed(2)} m/s`;
+      elPolicyAct.textContent = STATE.agentPolicyAct;
+      elRlReward.textContent = `${STATE.agentReward >= 0 ? '+' : ''}${STATE.agentReward.toFixed(1)} PTS`;
+
+      if (STATE.agentMode === 'train') {
+        const epProgress = (STATE.agentEpsilon * 100).toFixed(0);
+        document.getElementById('m-rl-reward').textContent = `ε: ${(STATE.agentEpsilon).toFixed(2)} (${epProgress}% EXPL)`;
+      }
+    }
+
+    // Update active theme colors
+    function updatePhaseTheme(phaseNum) {
+      const cfg = PHASES[phaseNum];
+      document.documentElement.style.setProperty('--active-accent', cfg.cssVar);
+      creatureEmissiveMat.color.copy(cfg.colorRGB);
+      creatureEmissiveMat.emissive.copy(cfg.colorRGB);
+
+      elPhaseTitle.textContent = `HARMONIC SYNC: PHASE ${Math.min(3, phaseNum)} / 3`;
+      elPhaseName.textContent = cfg.name;
+      elNarrative.textContent = cfg.prompt;
+
+      if (phaseNum <= 3) {
+        const minZ = Math.max(0, cfg.target - cfg.tolerance).toFixed(1);
+        const maxZ = (cfg.target + cfg.tolerance).toFixed(1);
+        elTargetTag.textContent = `TARGET ZONE: ${minZ} — ${maxZ} m/s`;
+        elTargetSpec.textContent = `ZONE: ${cfg.target.toFixed(1)} ± ${cfg.tolerance.toFixed(1)} m/s`;
+
+        // Update Tachometer Target Bracket
+        const startPct = (Math.max(0, cfg.target - cfg.tolerance) / STATE.maxSpeed) * 100;
+        const widthPct = ((cfg.tolerance * 2) / STATE.maxSpeed) * 100;
+        elTachTarget.style.left = `${startPct}%`;
+        elTachTarget.style.width = `${widthPct}%`;
+
+        // Update Throttle target zone
+        const bottomPct = (Math.max(0, cfg.target - cfg.tolerance) / STATE.maxSpeed) * 100;
+        const hPct = ((cfg.tolerance * 2) / STATE.maxSpeed) * 100;
+        elThrottleTargetZone.style.bottom = `${bottomPct}%`;
+        elThrottleTargetZone.style.height = `${hPct}%`;
+      } else {
+        elTargetTag.textContent = `STATUS: SINGULARITY ACTIVE`;
+        elTargetSpec.textContent = `PORTAL UNLOCKED`;
+        elTachTarget.style.width = `0%`;
+        elThrottleTargetZone.style.height = `0%`;
+      }
+    }
+
+    updatePhaseTheme(1);
+
+    // --- MAIN TICK & RENDER LOOP ---
+    let lastTime = performance.now();
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const currentTime = performance.now();
+      const dt = Math.min((currentTime - lastTime) / 1000, 0.1); // Clamp dt to prevent tab lag spikes
+      lastTime = currentTime;
+
+      // --- 1. SPEED & AGENT CONTROLS ---
+      const isShift = keys['ShiftLeft'] || keys['ShiftRight'] || (STATE.agentMode !== 'manual' && STATE.agentIsSprinting);
+      const accelRate = isShift ? 6.5 : 2.8;
+
+      if (STATE.agentMode === 'manual') {
+        if (keys['KeyW'] || keys['ArrowUp']) {
+          STATE.targetSpeed = Math.min(STATE.maxSpeed, STATE.targetSpeed + (isShift ? 8.0 : 4.0) * dt);
+        } else if (keys['KeyS'] || keys['ArrowDown']) {
+          STATE.targetSpeed = Math.max(0.0, STATE.targetSpeed - 6.0 * dt);
+        }
+      } else {
+        // Autonomous Neurocomputational Agent Drive Step
+        updateNeuroAgent(dt, currentTime);
+      }
+
+      // Smooth inertia lerp
+      STATE.playerSpeed = THREE.MathUtils.lerp(STATE.playerSpeed, STATE.targetSpeed, accelRate * dt);
+      if (STATE.playerSpeed < 0.01) STATE.playerSpeed = 0.0;
+
+      // Advance camera along highway (-Z axis)
+      STATE.cameraZ -= STATE.playerSpeed * dt;
+
+      // --- 2. CAMERA PARALLAX & PROCEDURAL HEAD-BOB ---
+      // Smooth look lerp
+      STATE.yaw = THREE.MathUtils.lerp(STATE.yaw, STATE.targetYaw, 8.0 * dt);
+      STATE.pitch = THREE.MathUtils.lerp(STATE.pitch, STATE.targetPitch, 8.0 * dt);
+
+      // Head-bobbing calculations (scaled mathematically to playerSpeed)
+      const speedNorm = STATE.playerSpeed / 12.0;
+      let bobY = 0.0;
+      let bobX = 0.0;
+
+      if (STATE.playerSpeed > 0.1) {
+        const bobFrequency = 6.0 + speedNorm * 8.5; // faster steps as you run
+        const bobAmplitude = speedNorm * 0.14;       // higher vertical excursion
+        STATE.bobTimer += bobFrequency * dt;
+
+        bobY = Math.sin(STATE.bobTimer * 2.0) * bobAmplitude;
+        bobX = Math.cos(STATE.bobTimer) * bobAmplitude * 0.55;
+
+        // Footstep audio trigger on down-step trough
+        if (Math.sin(STATE.bobTimer * 2.0) < -0.92 && currentTime - STATE.footstepTimer > 280) {
+          playProceduralFootstep();
+          STATE.footstepTimer = currentTime;
+        }
+      } else {
+        // Idle gentle breathing
+        bobY = Math.sin(currentTime * 0.0018) * 0.015;
+      }
+
+      camera.position.set(bobX, 1.7 + bobY, STATE.cameraZ);
+      camera.rotation.set(STATE.pitch, STATE.yaw, -bobX * 0.08, 'YXZ');
+
+      // Keep SkyDome centered on player
+      skyDome.position.set(0, camera.position.y - 1.7, STATE.cameraZ);
+
+      // --- 3. ENDLESS HIGHWAY RECYCLING ---
+      while (true) {
+        let maxChunk = roadChunks[0];
+        let minChunk = roadChunks[0];
+        for (let i = 1; i < roadChunks.length; i++) {
+          if (roadChunks[i].zPos > maxChunk.zPos) maxChunk = roadChunks[i];
+          if (roadChunks[i].zPos < minChunk.zPos) minChunk = roadChunks[i];
+        }
+        if (maxChunk.zPos > STATE.cameraZ + 40.0) {
+          maxChunk.updatePosition(minChunk.zPos - CHUNK_LENGTH);
+        } else {
+          break;
+        }
+      }
+      roadChunks.forEach(c => c.updateAntigravityWarp(STATE.guardrailLift, currentTime * 0.001));
+
+      // Smooth guardrail lift lerp (increases dramatically in Phase 2)
+      const targetLift = STATE.phase === 2 ? 1.6 : (STATE.phase >= 3 ? 1.0 : 0.0);
+      STATE.guardrailLift = THREE.MathUtils.lerp(STATE.guardrailLift, targetLift, 2.5 * dt);
+
+      // --- 4. 1:1 MATHEMATICAL SPEED-SYNC FOR CREATURES ---
+      // EXACT CRITICAL RULE: When playerSpeed == 0, cycle delta is 0! Everything freezes in eerie stillness!
+      const creatureDeltaCycle = STATE.playerSpeed * dt * 2.4;
+
+      // Phase 2 Frenzy magenta trails & emissive intensity boost
+      if (STATE.phase === 2) {
+        creatureEmissiveMat.emissiveIntensity = 2.5 + Math.sin(currentTime * 0.01) * 1.0;
+      } else {
+        creatureEmissiveMat.emissiveIntensity = 1.8;
+      }
+
+      creatures.forEach((c) => {
+        const u = c.userData;
+        u.animCycle += creatureDeltaCycle;
+
+        // Hover height oscillation scales with playerSpeed
+        const hoverAmp = 0.5 + speedNorm * 1.5;
+        const hoverOffset = Math.sin(u.animCycle) * hoverAmp;
+        const antigravityElevation = speedNorm * 1.6;
+
+        c.position.y = u.baseY + hoverOffset + antigravityElevation;
+
+        // If portal is active and creature is near the anomaly ahead, pull into sky vortex!
+        if (STATE.portalSpawned) {
+          const distToPortal = Math.abs(c.position.z - portalGroup.position.z);
+          if (distToPortal < 55.0) {
+            c.position.y += (16.0 - c.position.y) * 1.2 * dt;
+            c.rotation.x += 1.5 * dt;
+            c.rotation.y += 2.0 * dt;
+            c.rotation.z += 1.0 * dt;
+          }
+        }
+
+        // Micro-jitter harmonic vibration when player is in resonance zone
+        if (STATE.inTargetZone) {
+          const jitter = (Math.random() - 0.5) * 0.06 * (STATE.phaseTimer / 4.0);
+          c.position.x = u.origX + jitter;
+        } else {
+          c.position.x = u.origX;
+        }
+
+        // Archetype specific animations (all strictly locked to playerSpeed)
+        if (u.type === 'spindle') {
+          // Spider / pendulum limbs undulate only when moving
+          for (let l = 0; l < u.limbs.length; l++) {
+            const phaseOffset = l * (Math.PI / 3);
+            const limbAngle = Math.sin(u.animCycle + phaseOffset) * (0.35 + speedNorm * 0.45);
+            u.limbs[l].rotation.x = limbAngle;
+          }
+        } else if (u.type === 'drifter') {
+          // Concentric gyroscope rings rotate strictly with speed
+          u.rings[0].rotation.x += STATE.playerSpeed * dt * 0.8;
+          u.rings[1].rotation.y += STATE.playerSpeed * dt * 1.1;
+          u.rings[2].rotation.z += STATE.playerSpeed * dt * 0.9;
+
+          // Orbiting satellites
+          for (let s = 0; s < u.satellites.length; s++) {
+            const satAngle = u.animCycle + s * (Math.PI / 2);
+            const satDist = 2.6 + speedNorm * 0.8;
+            u.satellites[s].position.set(
+              Math.cos(satAngle) * satDist,
+              3.5 + Math.sin(satAngle * 2.0) * 0.6,
+              Math.sin(satAngle) * satDist
+            );
+          }
+        } else if (u.type === 'shard') {
+          // Razor shards rotate and fracture outward at higher speeds
+          const fractureSpread = 1.0 + speedNorm * 1.5;
+          for (let sh = 0; sh < u.shards.length; sh++) {
+            const item = u.shards[sh];
+            item.mesh.position.x = item.origX * fractureSpread;
+            item.mesh.position.z = item.origZ * fractureSpread;
+            item.mesh.rotation.y = item.origRotY + u.animCycle * 0.5;
+          }
+          // Tilt sideways toward Route 9 as player approaches
+          const distToPlayer = Math.abs(c.position.z - STATE.cameraZ);
+          if (distToPlayer < 40) {
+            const tiltDir = c.position.x > 0 ? -1 : 1;
+            c.rotation.z = tiltDir * (1.0 - distToPlayer / 40) * 0.35;
+          }
+        }
+
+        // Endless roadside creature recycling
+        if (c.position.z > STATE.cameraZ + 35.0) {
+          c.position.z -= 360.0;
+        }
+      });
+
+      // --- 5. FLOATING DUST PARTICLES SIMULATION ---
+      const pPos = particleGeo.attributes.position.array;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const i3 = i * 3;
+        // Upward antigravity drift
+        pPos[i3 + 1] += (0.6 + speedNorm * 1.8) * dt;
+        // Rush past player along Z
+        pPos[i3 + 2] += (STATE.playerSpeed * 0.8) * dt;
+
+        // Recycle particles within bounding box around camera
+        if (pPos[i3 + 1] > 22.0) pPos[i3 + 1] = 0.2;
+        if (pPos[i3 + 2] > STATE.cameraZ + 25.0) pPos[i3 + 2] = STATE.cameraZ - 200.0;
+        if (pPos[i3 + 2] < STATE.cameraZ - 220.0) pPos[i3 + 2] = STATE.cameraZ + 20.0;
+      }
+      particleGeo.attributes.position.needsUpdate = true;
+
+      // --- 6. HARMONIC SPEED-SYNC PUZZLE LOGIC ---
+      if (STATE.phase <= 3) {
+        const cfg = PHASES[STATE.phase];
+        const speedDiff = Math.abs(STATE.playerSpeed - cfg.target);
+        STATE.inTargetZone = speedDiff <= cfg.tolerance;
+
+        if (STATE.inTargetZone) {
+          STATE.phaseTimer = Math.min(STATE.phaseTargetDuration, STATE.phaseTimer + dt);
+          elPhaseCard.classList.add('resonating');
+          elPulseFx.style.opacity = (STATE.phaseTimer / 4.0) * 0.45;
+        } else {
+          // Gentle resonance decay
+          STATE.phaseTimer = Math.max(0.0, STATE.phaseTimer - dt * 0.85);
+          elPhaseCard.classList.remove('resonating');
+          elPulseFx.style.opacity = 0;
+        }
+
+        // Update progress bar
+        const progressPct = (STATE.phaseTimer / STATE.phaseTargetDuration) * 100;
+        elProgressBar.style.width = `${progressPct}%`;
+        elProgressPercent.textContent = `${Math.floor(progressPct)}%`;
+
+        // Check Phase Completion
+        if (STATE.phaseTimer >= STATE.phaseTargetDuration) {
+          playPhaseSuccessChime();
+          STATE.phaseTimer = 0.0;
+          STATE.phase++;
+
+          if (STATE.phase <= 3) {
+            updatePhaseTheme(STATE.phase);
+          } else {
+            // ALL 3 PHASES COMPLETE -> SPAWN ANOMALY PORTAL!
+            STATE.portalSpawned = true;
+            portalGroup.position.set(0, 10, STATE.cameraZ - 70);
+            portalGroup.visible = true;
+            updatePhaseTheme(4);
+            triggerClimaxAudio();
+            victoryOverlay.classList.remove('hidden');
+          }
+        }
+      }
+
+      // --- 7. PORTAL ANIMATIONS & GRAVITATIONAL VORTEX ---
+      if (STATE.portalSpawned && portalGroup.visible) {
+        outerPortalRing.rotation.z += 0.8 * dt;
+        midPortalRing.rotation.z -= 1.2 * dt;
+        innerPortalRing.rotation.x += 1.5 * dt;
+        vortexDisc.rotation.z += 2.0 * dt;
+
+        // Pull floating debris into portal
+        for (let d = 0; d < debrisMeshes.length; d++) {
+          const deb = debrisMeshes[d];
+          deb.angle += deb.speed * dt;
+          deb.dist -= 1.5 * dt;
+          if (deb.dist < 1.0) deb.dist = 18.0;
+
+          deb.mesh.position.set(
+            Math.cos(deb.angle) * deb.dist,
+            deb.yOffset + Math.sin(deb.angle) * (deb.dist * 0.6),
+            Math.sin(deb.angle * 2.0) * 3.0
+          );
+          deb.mesh.rotation.x += deb.rotSpeed * dt;
+          deb.mesh.rotation.y += deb.rotSpeed * dt;
+        }
+
+        // In warp mode, portal scales and pulls camera
+        if (STATE.warpMode) {
+          const distToPortal = camera.position.z - portalGroup.position.z;
+          if (distToPortal < 15.0) {
+            // Singularity leap
+            portalGroup.position.z -= 60.0 * dt;
+            camera.fov = THREE.MathUtils.lerp(camera.fov, 110, 3.0 * dt);
+            camera.updateProjectionMatrix();
+          }
+        }
+      }
+
+      // --- 8. WEB AUDIO DYNAMICS ---
+      updateWebAudio(dt);
+
+      // --- 9. DIEGETIC HUD REALTIME UPDATES ---
+      elSpeedVal.textContent = STATE.playerSpeed.toFixed(1).padStart(4, '0');
+
+      // Tachometer speed fill
+      const tachPct = Math.min(100, (STATE.playerSpeed / STATE.maxSpeed) * 100);
+      elTachFill.style.width = `${tachPct}%`;
+
+      // Throttle slider thumb & fill
+      const targetPct = (STATE.targetSpeed / STATE.maxSpeed) * 100;
+      throttleFill.style.height = `${targetPct}%`;
+      throttleThumb.style.bottom = `${targetPct}%`;
+
+      // --- 10. REALTIME CLINICAL EEG MONITOR WAVEFORM ---
+      drawEEGWaveform(currentTime);
+
+      // Render Scene
+      renderer.render(scene, camera);
+    }
+
+    // --- WINDOW RESIZE HANDLING ---
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    });
+
+    // Start Animation Loop
+    animate();
+  </script>
+</body>
+</html>
